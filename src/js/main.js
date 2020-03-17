@@ -1,6 +1,8 @@
 import { findPitch } from 'pitchy';
 import { exterpolate } from './math';
 
+let analyserNode;
+let audioContext;
 let micStream;
 let pitchElement;
 let clarityElement;
@@ -11,42 +13,47 @@ let ctx;
 let pitchList = [];
 const min = 100;
 const max = 400;
-const speed = 10;
+const speed = 5;
 let isStarted = false;
 
 function draw() {
-  console.log(pitchList.length);
   ctx.clearRect(0, 0, 600, 600);
-
-  pitchList.forEach(point => {
-    const val = Math.abs(exterpolate(min, max, point.y)) * 255;
-
-    ctx.fillStyle = `rgb(255, ${val}, ${255 - val})`;
-    ctx.fillRect(point.x, 600 - point.y, 10, 10);
-  })
-}
-
-function loop(analyserNode, sampleRate) {
-  let data = new Float32Array(analyserNode.fftSize);
-  analyserNode.getFloatTimeDomainData(data);
-  let [pitch, clarity] = findPitch(data, sampleRate);
-
-  pitchElement.textContent = String(pitch);
-  clarityElement.textContent = String(clarity);
-
-  pitchList = pitchList
-    .map(({x, y}) => ({ x: x - speed, y }))
-    .filter(({ x }) => x > -20);
-
-  if(isStarted) {
-    pitchList.push({
-      x: 600,
-      y: pitch
-    });
+  if(isStarted){
+    pitchList = pitchList
+      .map(({x, y, z}) => ({ x: x - speed, y, z }))
+      .filter(({ x }) => x > -20);
   }
-  draw();
+  pitchList.forEach(({x, y ,z}) => {
+    const val = Math.abs(exterpolate(min, max, y)) * 255;
+    const k = z ? z : 0;
+    const size = 10 * k;
+    ctx.fillStyle = `rgb(255, ${val}, ${255 - val})`;
+    ctx.fillRect(x, 600 - y, size, size);
+  })
+  }
 
-  window.requestAnimationFrame(() => loop(analyserNode, sampleRate));
+setInterval(() => {
+  if (isStarted) {
+    let data = new Float32Array(analyserNode.fftSize);
+    analyserNode.getFloatTimeDomainData(data);
+    let [pitch, clarity] = findPitch(data, audioContext.sampleRate);
+  
+    pitchElement.textContent = String(pitch);
+    clarityElement.textContent = String(clarity);
+  
+    if(isStarted && pitch > 100 && pitch < 500 && clarity > 0.85) {
+      pitchList.push({
+        x: 600,
+        y: pitch,
+        z: clarity
+      });
+    }
+  }
+}, 100);
+
+function loop() {
+  draw();
+  window.requestAnimationFrame(loop);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -66,8 +73,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   startButton.onclick = e => {
-    let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    let analyserNode = audioContext.createAnalyser();
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    analyserNode = audioContext.createAnalyser();
     isStarted = true;
 
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
@@ -75,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
       micStream = stream;
       let sourceNode = audioContext.createMediaStreamSource(stream);
       sourceNode.connect(analyserNode);
-      loop(analyserNode, audioContext.sampleRate);
+      loop();
     });
   }
 });
