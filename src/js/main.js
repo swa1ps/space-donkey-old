@@ -11,26 +11,36 @@ let startButton;
 let canvas;
 let ctx;
 let pitchList = [];
-const min = 100;
-const max = 400;
-const speed = 5;
+let min = 100;
+let max = 400;
+let speed = 5;
 let isStarted = false;
+let width = 600;
+let height = 600;
+let recInterval = 100;
 
 function draw() {
-  ctx.clearRect(0, 0, 600, 600);
+  ctx.clearRect(0, 0, width, height);
+  ctx.beginPath();
+  ctx.moveTo(0, height/2);
+  ctx.lineTo(width, height/2);
+  ctx.stroke();
   if(isStarted){
     pitchList = pitchList
-      .map(({x, y, z}) => ({ x: x - speed, y, z }))
+      .map(({x, y, z, color}) => ({ x: x - speed, y, z, color }))
       .filter(({ x }) => x > -20);
   }
-  pitchList.forEach(({x, y ,z}) => {
-    const val = Math.abs(exterpolate(min, max, y)) * 255;
+  ctx.beginPath();
+  pitchList.forEach(({x, y , z, color}) => {
     const k = z ? z : 0;
     const size = 10 * k;
-    ctx.fillStyle = `rgb(255, ${val}, ${255 - val})`;
-    ctx.fillRect(x, 600 - y, size, size);
-  })
-  }
+    ctx.fillStyle = `rgb(255, ${color}, ${255 - color})`;
+    ctx.strokeStyle = `rgb(255, ${color}, ${255 - color})`;
+    ctx.fillRect(x, height - y, size, size);
+    ctx.lineTo(x, height - y);
+  });
+  ctx.stroke();
+}
 
 setInterval(() => {
   if (isStarted) {
@@ -41,15 +51,16 @@ setInterval(() => {
     pitchElement.textContent = String(pitch);
     clarityElement.textContent = String(clarity);
   
-    if(isStarted && pitch > 100 && pitch < 500 && clarity > 0.85) {
+    if(isStarted && pitch > 100 && pitch < 500 && clarity > 0.95) {
       pitchList.push({
         x: 600,
-        y: pitch,
-        z: clarity
+        y: Math.abs(exterpolate(min, max, pitch)) * height,
+        z: clarity,
+        color: Math.abs(exterpolate(min, max, pitch)) * 255
       });
     }
   }
-}, 100);
+}, recInterval);
 
 function loop() {
   draw();
