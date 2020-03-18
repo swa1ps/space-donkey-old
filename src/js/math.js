@@ -14,6 +14,6 @@ export function interpolate(a, b, x) {
  * @param {number} b 
  * @param {number} y [a;b]
  */
-export function exterpolate(a, b, y) {
+export function extrapolate(a, b, y) {
   return (y - a) / (b - a);
 }

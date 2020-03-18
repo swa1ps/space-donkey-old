@@ -1,6 +1,8 @@
 import { findPitch } from 'pitchy';
-import { exterpolate } from './math';
+import { extrapolate } from './math';
+import { Player } from './Player';
 
+let player;
 let analyserNode;
 let audioContext;
 let micStream;
@@ -18,13 +20,32 @@ let isStarted = false;
 let width = 600;
 let height = 600;
 let recInterval = 100;
+let velocity = 0;
+let friction = 10;
+let y = 300;
 
 function draw() {
   ctx.clearRect(0, 0, width, height);
+
   ctx.beginPath();
   ctx.moveTo(0, height/2);
   ctx.lineTo(width, height/2);
   ctx.stroke();
+
+  if (velocity !== 0) {
+    velocity = velocity < 0 ? velocity + friction : velocity - friction;
+  }
+
+  y = y + velocity * 0.05;
+  if (y > height) {
+    y = height;
+  }
+  if (y < 0) {
+    y = 0;
+  }
+
+  player.draw(50, y);
+
   if(isStarted){
     pitchList = pitchList
       .map(({x, y, z, color}) => ({ x: x - speed, y, z, color }))
@@ -47,16 +68,19 @@ setInterval(() => {
     let data = new Float32Array(analyserNode.fftSize);
     analyserNode.getFloatTimeDomainData(data);
     let [pitch, clarity] = findPitch(data, audioContext.sampleRate);
-  
+
     pitchElement.textContent = String(pitch);
     clarityElement.textContent = String(clarity);
-  
+
+    const pitchValue = Math.abs(extrapolate(min, max, pitch));
+
     if(isStarted && pitch > 100 && pitch < 500 && clarity > 0.95) {
+      velocity = 300 - pitchValue * height;
       pitchList.push({
         x: 600,
-        y: Math.abs(exterpolate(min, max, pitch)) * height,
+        y: pitchValue * height,
         z: clarity,
-        color: Math.abs(exterpolate(min, max, pitch)) * 255
+        color: pitchValue * 255
       });
     }
   }
@@ -74,6 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
   startButton = document.getElementById('start');
   canvas = document.getElementById('canvas');
   ctx = canvas.getContext('2d');
+  player = new Player(ctx, 6);
 
   stopButton.onclick = () => {
     console.log('stop');
