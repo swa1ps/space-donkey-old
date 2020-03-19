@@ -1,8 +1,10 @@
 import { findPitch } from 'pitchy';
 import { extrapolate } from './math';
 import { Player } from './Player';
+import { PitchChart } from './PitchChart';
 
 let player;
+let pitchChart;
 let analyserNode;
 let audioContext;
 let micStream;
@@ -28,11 +30,6 @@ let y = 300;
 function draw() {
   ctx.clearRect(0, 0, width, height);
 
-  ctx.beginPath();
-  ctx.moveTo(0, height/2);
-  ctx.lineTo(width, height/2);
-  ctx.stroke();
-
   if (velocity !== 0) {
     velocity = velocity < 0 ? velocity + friction : velocity - friction;
   }
@@ -45,23 +42,15 @@ function draw() {
     y = 0;
   }
 
-  player.draw(50, y);
-
   if(isStarted){
     pitchList = pitchList
-      .map(({x, y, z, color}) => ({ x: x - speed, y, z, color }))
-      .filter(({ x }) => x > -20);
+    .map(({x, y, z, color}) => ({ x: x - speed, y, z, color }))
+    .filter(({ x }) => x > -20);
   }
-  ctx.beginPath();
-  pitchList.forEach(({x, y , z, color}) => {
-    const k = z ? z : 0;
-    const size = 10 * k;
-    ctx.fillStyle = `rgb(255, ${color}, ${255 - color})`;
-    ctx.strokeStyle = `rgb(255, ${color}, ${255 - color})`;
-    ctx.fillRect(x, height - y, size, size);
-    ctx.lineTo(x, height - y);
-  });
-  ctx.stroke();
+
+  pitchChart.draw(pitchList);
+  player.draw(50, y);
+
 }
 
 setInterval(() => {
@@ -79,7 +68,7 @@ setInterval(() => {
       velocity = (min + max) / 2 - pitchValue * height;
       pitchList.push({
         x: 600,
-        y: pitchValue * height,
+        y: height - pitchValue * height,
         z: clarity,
         color: pitchValue * 255
       });
@@ -105,6 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
   canvas = document.getElementById('canvas');
   ctx = canvas.getContext('2d');
   player = new Player(ctx, 6);
+  pitchChart = new PitchChart(ctx, pitchList);
 
   stopButton.onclick = () => {
     console.log('stop');
