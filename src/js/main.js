@@ -8,13 +8,14 @@ let audioContext;
 let micStream;
 let pitchElement;
 let clarityElement;
+let minmaxElement;
 let stopButton;
 let startButton;
 let canvas;
 let ctx;
 let pitchList = [];
-let min = 100;
-let max = 400;
+let min = 180;
+let max = 250;
 let speed = 5;
 let isStarted = false;
 let width = 600;
@@ -75,13 +76,17 @@ setInterval(() => {
     const pitchValue = Math.abs(extrapolate(min, max, pitch));
 
     if(isStarted && pitch > 100 && pitch < 500 && clarity > 0.95) {
-      velocity = 300 - pitchValue * height;
+      velocity = (min + max) / 2 - pitchValue * height;
       pitchList.push({
         x: 600,
         y: pitchValue * height,
         z: clarity,
         color: pitchValue * 255
       });
+      if (pitch < min) min = pitch;
+      if (pitch > max) max = pitch;
+
+      minmaxElement.textContent = `pitch: ${Math.round(min)} - ${Math.round(max)}, avg: ${Math.round(min + max) / 2}`;
     }
   }
 }, recInterval);
@@ -96,6 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
   clarityElement = document.getElementById('clarity');
   stopButton = document.getElementById('stop');
   startButton = document.getElementById('start');
+  minmaxElement = document.getElementById('minmax');
   canvas = document.getElementById('canvas');
   ctx = canvas.getContext('2d');
   player = new Player(ctx, 6);
@@ -115,6 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
       console.log('start');
+      minmaxElement.textContent = `pitch: ${min} - ${max}`;
       micStream = stream;
       let sourceNode = audioContext.createMediaStreamSource(stream);
       sourceNode.connect(analyserNode);
