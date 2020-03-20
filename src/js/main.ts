@@ -1,21 +1,21 @@
 import { findPitch } from 'pitchy';
 import { extrapolate } from './math';
 import { Player } from './Player';
-import { PitchChart } from './PitchChart';
+import { PitchChart, PitchList } from './PitchChart';
 
-let player;
-let pitchChart;
-let analyserNode;
-let audioContext;
-let micStream;
-let pitchElement;
-let clarityElement;
-let minmaxElement;
-let stopButton;
-let startButton;
-let canvas;
-let ctx;
-let pitchList = [];
+let player: Player;
+let pitchChart: PitchChart;
+let analyserNode: AnalyserNode;
+let audioContext: AudioContext;
+let micStream: MediaStream;
+let pitchElement: HTMLDivElement;
+let clarityElement: HTMLDivElement;
+let minmaxElement: HTMLDivElement;
+let stopButton: HTMLButtonElement;
+let startButton: HTMLButtonElement;
+let canvas: HTMLCanvasElement;
+let ctx: CanvasRenderingContext2D;
+let pitchList:PitchList[] = [];
 let min = 180;
 let max = 250;
 let speed = 5;
@@ -86,15 +86,15 @@ function loop() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  pitchElement = document.getElementById('pitch');
-  clarityElement = document.getElementById('clarity');
-  stopButton = document.getElementById('stop');
-  startButton = document.getElementById('start');
-  minmaxElement = document.getElementById('minmax');
-  canvas = document.getElementById('canvas');
+  pitchElement = <HTMLDivElement>document.getElementById('pitch');
+  clarityElement = <HTMLDivElement>document.getElementById('clarity');
+  stopButton = <HTMLButtonElement>document.getElementById('stop');
+  startButton = <HTMLButtonElement>document.getElementById('start');
+  minmaxElement = <HTMLDivElement>document.getElementById('minmax');
+  canvas = <HTMLCanvasElement>document.getElementById('canvas');
   ctx = canvas.getContext('2d');
-  player = new Player(ctx, 6);
-  pitchChart = new PitchChart(ctx, pitchList);
+  player = new Player(ctx);
+  pitchChart = new PitchChart(ctx);
 
   stopButton.onclick = () => {
     console.log('stop');
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   startButton.onclick = e => {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    audioContext = new AudioContext();
     analyserNode = audioContext.createAnalyser();
     isStarted = true;
 

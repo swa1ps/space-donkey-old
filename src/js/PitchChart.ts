@@ -1,10 +1,24 @@
 
-export class PitchChart {
-  constructor(ctx,) {
+export type PitchList = {
+  x: number;
+  y: number;
+  z: number;
+  color: number;
+}
+
+export interface IPitchChart {
+  ctx: CanvasRenderingContext2D;
+  draw: (pitchList: PitchList[]) => void;
+}
+
+export class PitchChart implements IPitchChart{
+  ctx: CanvasRenderingContext2D;
+
+  constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
   }
 
-  draw(pitchList) {
+  draw(pitchList: PitchList[]) {
     const ctx = this.ctx; 
     ctx.save();
     ctx.beginPath();
