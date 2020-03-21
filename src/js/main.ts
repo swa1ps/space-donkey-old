@@ -1,7 +1,7 @@
-import { findPitch } from 'pitchy';
-import { extrapolate } from './math';
 import { Player } from './Player';
-import { PitchChart, PitchList } from './PitchChart';
+import { PitchChart, Pitch } from './PitchChart';
+import { extrapolate } from './math';
+import { listenMic } from './audio';
 
 let player: Player;
 let pitchChart: PitchChart;
@@ -15,7 +15,7 @@ let stopButton: HTMLButtonElement;
 let startButton: HTMLButtonElement;
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
-let pitchList:PitchList[] = [];
+let pitchList:Pitch[] = [];
 let min = 180;
 let max = 250;
 let speed = 5;
@@ -23,62 +23,66 @@ let isStarted = false;
 let width = 600;
 let height = 600;
 let recInterval = 100;
+let listenMicRef = null;
 let velocity = 0;
 let friction = 10;
 let y = 300;
+
+function getNewVelocity(velocity: number, friction: number): number {
+  return velocity < 0 ? velocity + friction : velocity - friction;
+}
+
+function getNewPitchList(pitchList: Pitch[], speed: number): Pitch[]{
+  return pitchList
+    .map(({x, y, z, color}) => ({ x: x - speed, y, z, color }))
+    .filter(({ x }) => x > -20);
+}
+
+function getNewPosition(y: number, velocity: number, height:number): number {
+  y = y + velocity * 0.05;
+  y = y > height ? height : y;
+  y = y < 0 ? 0 : y;
+
+  return y;
+}
+
+function onPitchChanged(pitch: number, clarity: number): void {
+  pitchElement.textContent = String(pitch);
+  clarityElement.textContent = String(clarity);
+
+  const pitchValue = Math.abs(extrapolate(min, max, pitch));
+
+  if(pitch > 100 && pitch < 500 && clarity > 0.95) {
+    velocity = (min + max) / 2 - pitchValue * height;
+    pitchList.push({
+      x: 600,
+      y: height - pitchValue * height,
+      z: clarity,
+      color: pitchValue * 255
+    });
+    if (pitch < min) min = pitch;
+    if (pitch > max) max = pitch;
+
+    minmaxElement.textContent = `pitch: ${Math.round(min)} - ${Math.round(max)}, avg: ${Math.round(min + max) / 2}`;
+  }
+}
 
 function draw() {
   ctx.clearRect(0, 0, width, height);
 
   if (velocity !== 0) {
-    velocity = velocity < 0 ? velocity + friction : velocity - friction;
+    velocity = getNewVelocity(velocity, friction);
   }
 
-  y = y + velocity * 0.05;
-  if (y > height) {
-    y = height;
-  }
-  if (y < 0) {
-    y = 0;
-  }
+  y = getNewPosition(y, velocity, height);
 
   if(isStarted){
-    pitchList = pitchList
-    .map(({x, y, z, color}) => ({ x: x - speed, y, z, color }))
-    .filter(({ x }) => x > -20);
+    pitchList = getNewPitchList(pitchList, speed);
   }
 
   pitchChart.draw(pitchList);
   player.draw(50, y);
-
 }
-
-setInterval(() => {
-  if (isStarted) {
-    let data = new Float32Array(analyserNode.fftSize);
-    analyserNode.getFloatTimeDomainData(data);
-    let [pitch, clarity] = findPitch(data, audioContext.sampleRate);
-
-    pitchElement.textContent = String(pitch);
-    clarityElement.textContent = String(clarity);
-
-    const pitchValue = Math.abs(extrapolate(min, max, pitch));
-
-    if(isStarted && pitch > 100 && pitch < 500 && clarity > 0.95) {
-      velocity = (min + max) / 2 - pitchValue * height;
-      pitchList.push({
-        x: 600,
-        y: height - pitchValue * height,
-        z: clarity,
-        color: pitchValue * 255
-      });
-      if (pitch < min) min = pitch;
-      if (pitch > max) max = pitch;
-
-      minmaxElement.textContent = `pitch: ${Math.round(min)} - ${Math.round(max)}, avg: ${Math.round(min + max) / 2}`;
-    }
-  }
-}, recInterval);
 
 function loop() {
   draw();
@@ -99,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
   stopButton.onclick = () => {
     console.log('stop');
     isStarted = false;
+    clearInterval(listenMicRef);
     micStream.getAudioTracks().forEach(track => {
       track.stop();
     });
@@ -115,6 +120,8 @@ document.addEventListener("DOMContentLoaded", () => {
       micStream = stream;
       let sourceNode = audioContext.createMediaStreamSource(stream);
       sourceNode.connect(analyserNode);
+
+      listenMicRef = listenMic(recInterval, analyserNode, audioContext, onPitchChanged);
       loop();
     });
   }

@@ -1,5 +1,5 @@
 
-export type PitchList = {
+export type Pitch = {
   x: number;
   y: number;
   z: number;
@@ -8,7 +8,7 @@ export type PitchList = {
 
 export interface IPitchChart {
   ctx: CanvasRenderingContext2D;
-  draw: (pitchList: PitchList[]) => void;
+  draw: (pitchList: Pitch[]) => void;
 }
 
 export class PitchChart implements IPitchChart{
@@ -18,7 +18,7 @@ export class PitchChart implements IPitchChart{
     this.ctx = ctx;
   }
 
-  draw(pitchList: PitchList[]) {
+  draw(pitchList: Pitch[]) {
     const ctx = this.ctx; 
     ctx.save();
     ctx.beginPath();
