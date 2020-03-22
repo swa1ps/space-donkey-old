@@ -24,12 +24,12 @@ let width = 600;
 let height = 600;
 let recInterval = 100;
 let listenMicRef = null;
-let velocity = 0;
-let friction = 10;
+let vy = 0;
+let fy = 1.03;
 let y = 300;
 
-function getNewVelocity(velocity: number, friction: number): number {
-  return velocity < 0 ? velocity + friction : velocity - friction;
+function getVelocityAfterFriction(velocity: number, friction: number): number {
+  return velocity > -0.01 && velocity < 0.01 ? 0 : velocity / friction;
 }
 
 function getNewPitchList(pitchList: Pitch[], speed: number): Pitch[]{
@@ -39,7 +39,7 @@ function getNewPitchList(pitchList: Pitch[], speed: number): Pitch[]{
 }
 
 function getNewPosition(y: number, velocity: number, height:number): number {
-  y = y + velocity * 0.05;
+  y = y + velocity * 20;
   y = y > height ? height : y;
   y = y < 0 ? 0 : y;
 
@@ -50,18 +50,17 @@ function onPitchChanged(pitch: number, clarity: number): void {
   pitchElement.textContent = String(pitch);
   clarityElement.textContent = String(clarity);
 
-  const pitchValue = Math.abs(extrapolate(min, max, pitch));
-
   if(pitch > 100 && pitch < 500 && clarity > 0.95) {
-    velocity = (min + max) / 2 - pitchValue * height;
+    if (pitch < min) min = pitch;
+    if (pitch > max) max = pitch;
+    const pitchValue = Math.abs(extrapolate(min, max, pitch));
+    vy = 0.5 - pitchValue;
     pitchList.push({
       x: 600,
       y: height - pitchValue * height,
       z: clarity,
       color: pitchValue * 255
     });
-    if (pitch < min) min = pitch;
-    if (pitch > max) max = pitch;
 
     minmaxElement.textContent = `pitch: ${Math.round(min)} - ${Math.round(max)}, avg: ${Math.round(min + max) / 2}`;
   }
@@ -70,11 +69,9 @@ function onPitchChanged(pitch: number, clarity: number): void {
 function draw() {
   ctx.clearRect(0, 0, width, height);
 
-  if (velocity !== 0) {
-    velocity = getNewVelocity(velocity, friction);
-  }
+  vy = getVelocityAfterFriction(vy, fy);
 
-  y = getNewPosition(y, velocity, height);
+  y = getNewPosition(y, vy, height);
 
   if(isStarted){
     pitchList = getNewPitchList(pitchList, speed);
