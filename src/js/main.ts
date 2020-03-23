@@ -9,9 +9,6 @@ let pitchChart: PitchChart;
 let analyserNode: AnalyserNode;
 let audioContext: AudioContext;
 let micStream: MediaStream;
-let pitchElement: HTMLDivElement;
-let clarityElement: HTMLDivElement;
-let minmaxElement: HTMLDivElement;
 let stopButton: HTMLButtonElement;
 let startButton: HTMLButtonElement;
 let canvas: HTMLCanvasElement;
@@ -33,9 +30,6 @@ function getNewPitchList(pitchList: Pitch[], speed: number): Pitch[]{
 }
 
 function onPitchChanged(pitch: number, clarity: number): void {
-  pitchElement.textContent = String(pitch);
-  clarityElement.textContent = String(clarity);
-
   if(pitch > 100 && pitch < 500 && clarity > 0.95) {
     if (pitch < game.min) game.min = pitch;
     if (pitch > game.max) game.max = pitch;
@@ -47,8 +41,6 @@ function onPitchChanged(pitch: number, clarity: number): void {
       z: clarity,
       color: pitchValue * 255
     });
-
-    minmaxElement.textContent = `pitch: ${Math.round(game.min)} - ${Math.round(game.max)}, avg: ${Math.round(game.min + game.max) / 2}`;
   }
 }
 
@@ -72,11 +64,8 @@ function loop() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  pitchElement = <HTMLDivElement>document.getElementById('pitch');
-  clarityElement = <HTMLDivElement>document.getElementById('clarity');
   stopButton = <HTMLButtonElement>document.getElementById('stop');
   startButton = <HTMLButtonElement>document.getElementById('start');
-  minmaxElement = <HTMLDivElement>document.getElementById('minmax');
   canvas = <HTMLCanvasElement>document.getElementById('canvas');
   ctx = canvas.getContext('2d');
   player = new Player(ctx);
@@ -98,7 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
       console.log('start');
-      minmaxElement.textContent = `pitch: ${game.min} - ${game.max}`;
       micStream = stream;
       let sourceNode = audioContext.createMediaStreamSource(stream);
       sourceNode.connect(analyserNode);
