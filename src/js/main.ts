@@ -1,7 +1,7 @@
 import { Player } from './Player';
-import { PitchChart, Pitch } from './PitchChart';
+import { PitchChart } from './PitchChart';
 import { extrapolate } from './math';
-import { listenMic } from './audio';
+import { listenMic, stopStream } from './audio';
 import { Game } from './Game';
 
 let player: Player;
@@ -13,29 +13,16 @@ let stopButton: HTMLButtonElement;
 let startButton: HTMLButtonElement;
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
-let pitchList:Pitch[] = [];
 let listenMicRef = null;
-let vy = 0;
-let fy = 1.03;
 let game = new Game();
-
-function getVelocityAfterFriction(velocity: number, friction: number): number {
-  return velocity > -0.01 && velocity < 0.01 ? 0 : velocity / friction;
-}
-
-function getNewPitchList(pitchList: Pitch[], speed: number): Pitch[]{
-  return pitchList
-    .map(({x, y, z, color}) => ({ x: x - speed, y, z, color }))
-    .filter(({ x }) => x > -20);
-}
 
 function onPitchChanged(pitch: number, clarity: number): void {
   if(pitch > 100 && pitch < 500 && clarity > 0.95) {
     if (pitch < game.min) game.min = pitch;
     if (pitch > game.max) game.max = pitch;
     const pitchValue = Math.abs(extrapolate(game.min, game.max, pitch));
-    vy = 0.5 - pitchValue;
-    pitchList.push({
+    player.vy = 0.5 - pitchValue;
+    pitchChart.addPitch({
       x: game.width,
       y: game.height - pitchValue * game.height,
       z: clarity,
@@ -46,15 +33,7 @@ function onPitchChanged(pitch: number, clarity: number): void {
 
 function draw() {
   ctx.clearRect(0, 0, game.width, game.height);
-
-  vy = getVelocityAfterFriction(vy, fy);
-
-  if(game.isListen){
-    pitchList = getNewPitchList(pitchList, game.speed);
-  }
-
-  pitchChart.draw(pitchList);
-  player.updatePosition(vy, game.height);
+  pitchChart.draw();
   player.draw();
 }
 
@@ -75,9 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log('stop');
     game.isListen = false;
     clearInterval(listenMicRef);
-    micStream.getAudioTracks().forEach(track => {
-      track.stop();
-    });
+    stopStream(micStream);
   }
 
   startButton.onclick = e => {

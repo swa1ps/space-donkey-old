@@ -1,3 +1,5 @@
+import { getVelocityAfterFriction } from './math';
+
 const RADIUS = 40;
 
 export class Player{
@@ -15,15 +17,14 @@ export class Player{
     this.fy = 1.03;
   }
 
-  updatePosition(vy: number, height: number){
-    let y = this.y + vy * 20;
-    y = y > height ? height : y;
-    y = y < 0 ? 0 : y;
-  
-    this.y = y;
-  }
-
   draw() {
+    this.vy = getVelocityAfterFriction(this.vy, this.fy);
+    let y = this.y + this.vy * 20;
+    y = y > 600 ? 600 : y;
+    y = y < 0 ? 0 : y;
+
+    this.y = y;
+
     const ctx = this.ctx; 
     ctx.save();
 

@@ -13,3 +13,9 @@ export function listenMic(
     callback(pitch, clarity);
   }, interval);
 }
+
+export function stopStream(stream: MediaStream) {
+  stream.getAudioTracks().forEach(track => {
+    track.stop();
+  });
+}

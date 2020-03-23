@@ -6,23 +6,32 @@ export type Pitch = {
   color: number;
 }
 
-export interface IPitchChart {
-  ctx: CanvasRenderingContext2D;
-  draw: (pitchList: Pitch[]) => void;
+function getNewPitchList(pitchList: Pitch[] = [], speed: number): Pitch[]{
+  return pitchList
+    .map(({x, y, z, color}) => ({ x: x - speed, y, z, color }))
+    .filter(({ x }) => x > -20);
 }
 
-export class PitchChart implements IPitchChart{
+export class PitchChart {
   ctx: CanvasRenderingContext2D;
+  pitchList: Pitch[];
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
   }
 
-  draw(pitchList: Pitch[]) {
-    const ctx = this.ctx; 
+  addPitch(pitch: Pitch) {
+    this.pitchList.push(pitch);
+  }
+
+  draw() {
+    const ctx = this.ctx;
+
+    this.pitchList = getNewPitchList(this.pitchList, 5);
+
     ctx.save();
     ctx.beginPath();
-    pitchList.forEach(({x, y , z, color}) => {
+    this.pitchList.forEach(({x, y , z, color}) => {
       const k = z ? z : 0;
       const size = 10 * k;
       ctx.fillStyle = `rgb(255, ${color}, ${255 - color})`;
