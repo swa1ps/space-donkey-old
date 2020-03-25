@@ -22,6 +22,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "pitchy": "^1.1.0"
+    "pitchy": "^1.1.0",
+    "three": "^0.115.0"
   }
 }

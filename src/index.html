@@ -8,20 +8,27 @@
     #canvas {
       border: #000 1px solid;
     }
+    #wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
   </style>
 </head>
 <body>
-  <div>
-    <canvas id="canvas" width="600" height="600"></canvas>
-  </div>
-  <div>
-    <button id="start">start</button>
-    <button id="stop">stop</button>
-  </div>
-  <div>
-    <div id="pitch"></div>
-    <div id="clarity"></div>
-    <div id="minmax"></div>
+  <div id="wrapper">
+    <div>
+      <canvas id="canvas" width="600" height="600"></canvas>
+      <div>
+        <button id="start">start</button>
+        <button id="stop">stop</button>
+      </div>
+      <div>
+        <div id="pitch"></div>
+        <div id="clarity"></div>
+        <div id="minmax"></div>
+      </div>
+    </div>
+    <div id="webgl"></div>
   </div>
   <script src="../src/js/main.ts"></script>
 </body>

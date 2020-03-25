@@ -3,6 +3,10 @@ import { PitchChart } from './PitchChart';
 import { extrapolate } from './math';
 import { listenMic, stopStream } from './audio';
 import { Game } from './Game';
+import * as THREE from "three";
+
+let camera, scene, renderer;
+let geometry, material, mesh;
 
 let player: Player;
 let pitchChart: PitchChart;
@@ -35,11 +39,43 @@ function draw() {
   ctx.clearRect(0, 0, game.width, game.height);
   pitchChart.draw();
   player.draw();
+  mesh.rotation.x += 0.01;
+  mesh.rotation.y += 0.02;
+
+  mesh.position.y = -1 * player.y2;
+
+  renderer.render(scene, camera);
 }
 
 function loop() {
   draw();
   window.requestAnimationFrame(loop);
+}
+
+function init() {
+    camera = new THREE.PerspectiveCamera(
+      70,
+      window.innerWidth / window.innerHeight,
+      0.01,
+      10
+    );
+    camera.position.z = 2;
+  
+    scene = new THREE.Scene();
+  
+    geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+    material = new THREE.MeshNormalMaterial();
+  
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.x = -1.5;
+
+    scene.add(mesh);
+    
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.shadowMap.enabled = true
+    renderer.setSize(600, 600);
+    const webgl = document.getElementById('webgl');
+    webgl.appendChild(renderer.domElement);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -69,6 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
       sourceNode.connect(analyserNode);
 
       listenMicRef = listenMic(game.listenInterval, analyserNode, audioContext, onPitchChanged);
+      init();
       loop();
     });
   }
