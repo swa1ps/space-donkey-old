@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/swa1ps/space-donkey#readme",
   "devDependencies": {
+    "@types/node": "^13.11.0",
     "parcel-bundler": "^1.12.4",
     "typescript": "^3.8.3"
   },
