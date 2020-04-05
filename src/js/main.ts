@@ -4,8 +4,14 @@ import { extrapolate } from './utils/math';
 import { listenMic, stopStream } from './utils/audio';
 import { Game } from './models/Game';
 import * as THREE from "three";
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import playerModel from '../assets/player.glb';
+import playerModel2 from '../assets/player.gltf';
 
-let camera, scene, renderer;
+var loader = new GLTFLoader();
+
+let camera, scene, renderer, controls;
 let geometry, material, mesh;
 
 let player: Player;
@@ -43,7 +49,7 @@ function draw() {
   mesh.rotation.y += 0.02;
 
   mesh.position.y = -1 * player.y2;
-
+  controls.update();
   renderer.render(scene, camera);
 }
 
@@ -53,26 +59,69 @@ function loop() {
 }
 
 function init() {
-    camera = new THREE.PerspectiveCamera(
-      70,
-      window.innerWidth / window.innerHeight,
-      0.01,
-      10
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.shadowMap.enabled = true
+  
+  camera = new THREE.PerspectiveCamera(
+      35,
+      1, // window.innerWidth / window.innerHeight,
+      0.1,
+      5000
     );
-    camera.position.z = 2;
-  
+
+    controls = new OrbitControls(camera, renderer.domElement);
+    // camera.position.z = 2;
+
+    camera.position.set(-68, 7, 24);
+    camera.rotation.set(-0.6, -1.4, -0.6);
+    controls.update();
     scene = new THREE.Scene();
-  
+
     geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
     material = new THREE.MeshNormalMaterial();
   
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.x = -1.5;
 
-    scene.add(mesh);
+    const light = new THREE.AmbientLight(0xffffff, 0.5);
+    light.position.set(0, 30, 30);
+    scene.add(light);
+  
+    const light1 = new THREE.PointLight(0xffffff, 0.5);
+    light1.position.set(0, 30, 30);
+    scene.add(light1);
     
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.shadowMap.enabled = true
+    const light2 = new THREE.PointLight(0xffffff, 0.5);
+    light2.position.set(0, -30, -30);
+    
+    scene.add(light2);
+    
+    loader.load(
+      playerModel2,
+      (gltf) => {
+        const head = gltf.scene.children[0];
+        const eye_r = gltf.scene.children[1];
+        const eye_l = gltf.scene.children[2];
+        const pupil_l = gltf.scene.children[3];
+        const pupil_r = gltf.scene.children[4];
+        const helmet = gltf.scene.children[5];
+        const glass = gltf.scene.children[6];
+
+        glass.material = new THREE.MeshPhongMaterial({
+          color: 0xFFFFFF,
+          opacity: 0.5,
+          transparent: true,
+        });
+
+        scene.add(head, eye_r, eye_l, pupil_l, pupil_r, helmet, glass);
+      },
+      undefined,
+      (error) => {
+        console.error(error);
+      }
+    );
+
+    scene.add(mesh);
     renderer.setSize(600, 600);
     const webgl = document.getElementById('webgl');
     webgl.appendChild(renderer.domElement);
@@ -88,6 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   stopButton.onclick = () => {
     console.log('stop');
+    console.log(camera);
     game.isListen = false;
     clearInterval(listenMicRef);
     stopStream(micStream);
