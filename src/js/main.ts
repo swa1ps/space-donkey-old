@@ -1,8 +1,8 @@
-import { Player } from './Player';
-import { PitchChart } from './PitchChart';
-import { extrapolate } from './math';
-import { listenMic, stopStream } from './audio';
-import { Game } from './Game';
+import { Player } from './models/Player';
+import { PitchChart } from './models/PitchChart';
+import { extrapolate } from './utils/math';
+import { listenMic, stopStream } from './utils/audio';
+import { Game } from './models/Game';
 import * as THREE from "three";
 
 let camera, scene, renderer;

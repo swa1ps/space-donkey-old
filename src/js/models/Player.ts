@@ -1,4 +1,4 @@
-import { getVelocityAfterFriction } from './math';
+import { getVelocityAfterFriction } from '../utils/math';
 
 const RADIUS = 40;
 
