@@ -6,7 +6,6 @@ import { Game } from './models/Game';
 import * as THREE from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import playerModel from '../assets/player.glb';
 import playerModel2 from '../assets/player.gltf';
 
 var loader = new GLTFLoader();
@@ -45,9 +44,6 @@ function draw() {
   ctx.clearRect(0, 0, game.width, game.height);
   pitchChart.draw();
   player.draw();
-  mesh.rotation.x += 0.01;
-  mesh.rotation.y += 0.02;
-
   mesh.position.y = -1 * player.y2;
   controls.update();
   renderer.render(scene, camera);
@@ -113,7 +109,7 @@ function init() {
           transparent: true,
         });
 
-        scene.add(head, eye_r, eye_l, pupil_l, pupil_r, helmet, glass);
+        mesh.add(head, eye_r, eye_l, pupil_l, pupil_r, helmet, glass);
       },
       undefined,
       (error) => {

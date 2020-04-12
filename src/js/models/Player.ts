@@ -27,10 +27,9 @@ export class Player{
 
     this.y = y;
 
-    let y2 = this.y2 + this.vy * 0.1;
-    y2 = y2 > 1 ? 1 : y2;
-    y2 = y2 < -1 ? -1 : y2;
-
+    let y2 = this.y2 + this.vy * 0.9;
+    y2 = y2 > 20 ? 20 : y2;
+    y2 = y2 < -12 ? -12 : y2;
     this.y2 = y2;
 
     const ctx = this.ctx;
