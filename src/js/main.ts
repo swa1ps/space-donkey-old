@@ -6,12 +6,19 @@ import { Game } from './models/Game';
 import * as THREE from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import playerModel2 from '../assets/player.gltf';
+import playerModel from '../assets/player.gltf';
+import meteoriteModel from '../assets/meteorite.gltf';
 
 var loader = new GLTFLoader();
 
-let camera, scene, renderer, controls;
-let geometry, material, mesh;
+let camera: THREE.Camera;
+let scene: THREE.Scene;
+let renderer: THREE.WebGLRenderer;
+let controls: OrbitControls;
+let geometry: THREE.Geometry;
+let material: THREE.Material;
+let mesh: THREE.Mesh;
+let meteorite: THREE.Mesh;
 
 let player: Player;
 let pitchChart: PitchChart;
@@ -45,6 +52,10 @@ function draw() {
   pitchChart.draw();
   player.draw();
   mesh.position.y = -1 * player.y2;
+  if (meteorite){
+    meteorite.rotation.x -= 0.004;
+    meteorite.rotation.z += 0.005;
+  }
   controls.update();
   renderer.render(scene, camera);
 }
@@ -68,16 +79,22 @@ function init() {
     controls = new OrbitControls(camera, renderer.domElement);
     // camera.position.z = 2;
 
-    camera.position.set(-68, 7, 24);
-    camera.rotation.set(-0.6, -1.4, -0.6);
-    controls.update();
+    camera.position.set(-68, 7, 0);
+    // camera.rotation.set(-1.9, -1.5, -1.9);
+    // controls.update();
     scene = new THREE.Scene();
 
     geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
     material = new THREE.MeshNormalMaterial();
   
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.x = -1.5;
+    mesh.position.x = 0;
+    mesh.position.z = -18;
+
+    const axes = new THREE.AxesHelper();
+    axes.material.depthTest = false;
+    axes.renderOrder = 1;
+    mesh.add(axes);
 
     const light = new THREE.AmbientLight(0xffffff, 0.5);
     light.position.set(0, 30, 30);
@@ -93,7 +110,7 @@ function init() {
     scene.add(light2);
     
     loader.load(
-      playerModel2,
+      playerModel,
       (gltf) => {
         const head = gltf.scene.children[0];
         const eye_r = gltf.scene.children[1];
@@ -117,6 +134,23 @@ function init() {
       }
     );
 
+    loader.load(
+      meteoriteModel,
+      (gltf) => {
+        meteorite = gltf.scene.children[0];
+        meteorite.scale.set(5,5,5)
+        meteorite.material = new THREE.MeshPhongMaterial({
+          color: 0xFFFFFF,
+        });
+
+        scene.add(meteorite);
+      },
+      undefined,
+      (error) => {
+        console.error(error);
+      }
+    );
+    
     scene.add(mesh);
     renderer.setSize(600, 600);
     const webgl = document.getElementById('webgl');
