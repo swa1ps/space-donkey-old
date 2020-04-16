@@ -1,15 +1,12 @@
-import { Player } from './models/Player';
+import { Player, loadPlayerModel } from './models/Player';
+import { initScene } from './models/Scene';
+import { loadMeteoriteModel, enemiesController } from './models/Enemy';
 import { PitchChart } from './models/PitchChart';
 import { extrapolate } from './utils/math';
 import { listenMic, stopStream } from './utils/audio';
 import { Game } from './models/Game';
 import * as THREE from "three";
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import playerModel from '../assets/player.gltf';
-import meteoriteModel from '../assets/meteorite.gltf';
-
-var loader = new GLTFLoader();
 
 let camera: THREE.Camera;
 let scene: THREE.Scene;
@@ -37,7 +34,7 @@ function onPitchChanged(pitch: number, clarity: number): void {
     if (pitch < game.min) game.min = pitch;
     if (pitch > game.max) game.max = pitch;
     const pitchValue = Math.abs(extrapolate(game.min, game.max, pitch));
-    player.vy = 0.5 - pitchValue;
+    player.vy = (0.5 - pitchValue) * 1.6;
     pitchChart.addPitch({
       x: game.width,
       y: game.height - pitchValue * game.height,
@@ -52,10 +49,9 @@ function draw() {
   pitchChart.draw();
   player.draw();
   mesh.position.y = -1 * player.y2;
-  if (meteorite){
-    meteorite.rotation.x -= 0.004;
-    meteorite.rotation.z += 0.005;
-  }
+
+  enemiesController(scene, mesh, meteorite);
+
   controls.update();
   renderer.render(scene, camera);
 }
@@ -65,7 +61,7 @@ function loop() {
   window.requestAnimationFrame(loop);
 }
 
-function init() {
+async function init() {
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.shadowMap.enabled = true
   
@@ -77,11 +73,9 @@ function init() {
     );
 
     controls = new OrbitControls(camera, renderer.domElement);
-    // camera.position.z = 2;
 
     camera.position.set(-68, 7, 0);
-    // camera.rotation.set(-1.9, -1.5, -1.9);
-    // controls.update();
+    controls.update();
     scene = new THREE.Scene();
 
     geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
@@ -95,61 +89,21 @@ function init() {
     axes.material.depthTest = false;
     axes.renderOrder = 1;
     mesh.add(axes);
-
-    const light = new THREE.AmbientLight(0xffffff, 0.5);
-    light.position.set(0, 30, 30);
-    scene.add(light);
-  
-    const light1 = new THREE.PointLight(0xffffff, 0.5);
-    light1.position.set(0, 30, 30);
-    scene.add(light1);
     
-    const light2 = new THREE.PointLight(0xffffff, 0.5);
-    light2.position.set(0, -30, -30);
+    initScene(scene);
+
+    try {
+      const playerModel = await loadPlayerModel();
+      mesh.add(playerModel);
+    } catch (error) {
+      console.log(error);
+    }
     
-    scene.add(light2);
-    
-    loader.load(
-      playerModel,
-      (gltf) => {
-        const head = gltf.scene.children[0];
-        const eye_r = gltf.scene.children[1];
-        const eye_l = gltf.scene.children[2];
-        const pupil_l = gltf.scene.children[3];
-        const pupil_r = gltf.scene.children[4];
-        const helmet = gltf.scene.children[5];
-        const glass = gltf.scene.children[6];
-
-        glass.material = new THREE.MeshPhongMaterial({
-          color: 0xFFFFFF,
-          opacity: 0.5,
-          transparent: true,
-        });
-
-        mesh.add(head, eye_r, eye_l, pupil_l, pupil_r, helmet, glass);
-      },
-      undefined,
-      (error) => {
-        console.error(error);
-      }
-    );
-
-    loader.load(
-      meteoriteModel,
-      (gltf) => {
-        meteorite = gltf.scene.children[0];
-        meteorite.scale.set(5,5,5)
-        meteorite.material = new THREE.MeshPhongMaterial({
-          color: 0xFFFFFF,
-        });
-
-        scene.add(meteorite);
-      },
-      undefined,
-      (error) => {
-        console.error(error);
-      }
-    );
+    try {
+      meteorite = await loadMeteoriteModel();
+    } catch (error) {
+      console.log(error);
+    }
     
     scene.add(mesh);
     renderer.setSize(600, 600);
