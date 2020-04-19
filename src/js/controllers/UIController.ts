@@ -1,3 +1,5 @@
+import { extrapolate } from '../utils/math';
+
 export type Pitch = {
   x: number;
   y: number;
@@ -67,7 +69,26 @@ export class UIController {
     console.log('init uiController');
   }
 
-  drawPitchState() {
+  drawPitchVelocity = (v, minPitch, maxPitch) => {
+    this.ctx.save();
+    this.ctx.beginPath();
+    this.ctx.fillStyle = 'green';
+    this.ctx.rect(195,50,5,50 * v);
+    this.ctx.fill();
+
+    this.ctx.beginPath();
+    this.ctx.fillStyle = 'yellow';
+    const range = maxPitch - minPitch;
+    const exRange = extrapolate(100, 1000, 100 + range);
+
+    const rectHeight = 100 * exRange;
+    this.ctx.rect(0, 50 - rectHeight/2,5, rectHeight);
+    this.ctx.fill();
+    this.ctx.restore();
+  }
+
+  drawPitchState(v, minPitch, maxPitch) {
     this.pitchChart.draw();
+    this.drawPitchVelocity(v, minPitch, maxPitch);
   }
 }

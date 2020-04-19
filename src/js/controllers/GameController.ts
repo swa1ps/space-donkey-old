@@ -18,9 +18,9 @@ export class GameController {
 
   constructor() {
     console.log('init game controller');
-    this.uiController = new UIController(this.start, this.stop);
     this.player = new Player();
     this.drawController = new DrawController(this.player);
+    this.uiController = new UIController(this.start, this.stop);
   }
 
   onPitchChanged = (pitch: number, clarity: number) => {
@@ -28,7 +28,6 @@ export class GameController {
       if (pitch < this.minPitch) this.minPitch = pitch;
       if (pitch > this.maxPitch) this.maxPitch = pitch;
       const pitchValue = Math.abs(extrapolate(this.minPitch, this.maxPitch, pitch));
-      console.log({pitchValue});
       this.player.vy = (0.5 - pitchValue) * 1.6;
       this.uiController.pitchChart.addPitch({
         x: 200,
@@ -44,7 +43,6 @@ export class GameController {
     try {
       await this.audioController.startListen(this.onPitchChanged);
       await this.drawController.init();
-      // init()
       this.isStart = true;
       this.loop();
       console.log(this.audioController, this.isStart);
@@ -62,7 +60,7 @@ export class GameController {
   }
 
   draw = () => {
-    this.uiController.drawPitchState();
+    this.uiController.drawPitchState(this.player.vy, this.minPitch, this.maxPitch);
     this.player.draw();
     this.drawController.draw();
   }
