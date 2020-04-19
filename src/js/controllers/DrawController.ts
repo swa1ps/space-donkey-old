@@ -21,7 +21,8 @@ export class DrawController {
   }
 
   init = async () => {
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    const canvas = document.getElementById('webgl') as HTMLCanvasElement;
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     this.renderer.shadowMap.enabled = true
     
     this.camera = new THREE.PerspectiveCamera(
@@ -66,12 +67,10 @@ export class DrawController {
 
     this.scene.add(this.mesh);
     this.renderer.setSize(600, 600);
-    const webgl = document.getElementById('webgl');
-    webgl.appendChild(this.renderer.domElement);
   }
 
   draw = () => {
-    this.mesh.position.y = -1 * this.player.y2;
+    this.mesh.position.y = -1 * this.player.y;
   
     enemiesController(this.scene, this.mesh, this.meteorite);
   

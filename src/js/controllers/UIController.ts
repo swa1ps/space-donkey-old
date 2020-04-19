@@ -25,15 +25,14 @@ export class PitchChart {
 
   draw() {
     const ctx = this.ctx;
-    ctx.clearRect(0, 0, 600, 600);
-
+    ctx.clearRect(0, 0, 200, 100);
     this.pitchList = getNewPitchList(this.pitchList, 5);
 
     ctx.save();
     ctx.beginPath();
     this.pitchList.forEach(({x, y , z, color}) => {
       const k = z ? z : 0;
-      const size = 10 * k;
+      const size = 4 * k;
       ctx.fillStyle = `rgb(255, ${color}, ${255 - color})`;
       ctx.strokeStyle = `rgb(255, ${color}, ${255 - color})`;
       ctx.fillRect(x, y, size, size);
@@ -51,19 +50,24 @@ export class UIController {
   pitchChart: PitchChart;
 
   constructor(startHandler, stopHandler) {
-    const startButton = <HTMLButtonElement>document.getElementById('start');
-    const stopButton = <HTMLButtonElement>document.getElementById('stop');
     const canvas = <HTMLCanvasElement>document.getElementById('canvas');
     this.ctx = canvas.getContext('2d');
     this.pitchChart = new PitchChart(this.ctx);
 
-    startButton.onclick = startHandler;
-    stopButton.onclick = stopHandler;
+    document.onkeyup = e => {
+      switch (e.code) {
+        case 'Escape':
+          stopHandler();
+          break;
+        case 'Enter':
+          startHandler();
+          break;
+      }
+    }
     console.log('init uiController');
   }
 
   drawPitchState() {
-    // TODO: raf
     this.pitchChart.draw();
   }
 }
