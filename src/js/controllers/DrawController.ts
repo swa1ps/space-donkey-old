@@ -42,8 +42,8 @@ export class DrawController {
     this.material = new THREE.MeshNormalMaterial();
   
     this.mesh = new THREE.Mesh(this.geometry, this.material);
-    this.mesh.position.x = 0;
-    this.mesh.position.z = -18;
+    this.mesh.position.x = 70;
+    this.mesh.position.z = -35;
 
     const axes = new THREE.AxesHelper();
     axes.material.depthTest = false;

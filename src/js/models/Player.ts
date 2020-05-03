@@ -5,8 +5,8 @@ let mixer: THREE.AnimationMixer;
 let clock = new THREE.Clock();
 import { getVelocityAfterFriction } from '../utils/math';
 
-const YMAX = 20;
-const YMIN = -12;
+const YMAX = 50;
+const YMIN = -18;
 
 const loader = new GLTFLoader();
 
@@ -20,8 +20,8 @@ export async function loadPlayerModel(): Promise<THREE.Group> {
 
         const glass = model.children[0].children[9];
         glass.material = new THREE.MeshPhongMaterial({
-          color: 0xC7DBF0,
-          opacity: 0.4,
+          color: 0xFFFFFF,
+          opacity: 0.3,
           transparent: true,
           skinning: true
         });
@@ -48,7 +48,7 @@ export class Player {
   fy: number;
 
   constructor() {
-    this.y = 0;
+    this.y = (YMIN + YMAX) / 2;
     this.vy = 0;
     this.fy = 1.07;
   }
