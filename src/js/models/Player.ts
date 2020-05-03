@@ -1,7 +1,8 @@
 import * as THREE from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import playerModel from '../../assets/player.gltf';
-
+let mixer: THREE.AnimationMixer;
+let clock = new THREE.Clock();
 import { getVelocityAfterFriction } from '../utils/math';
 
 const YMAX = 20;
@@ -14,21 +15,22 @@ export async function loadPlayerModel(): Promise<THREE.Group> {
     loader.load(
       playerModel,
       (gltf) => {
-        const head = gltf.scene.children[0];
-        const eye_r = gltf.scene.children[1];
-        const eye_l = gltf.scene.children[2];
-        const pupil_l = gltf.scene.children[3];
-        const pupil_r = gltf.scene.children[4];
-        const helmet = gltf.scene.children[5];
-        const glass = gltf.scene.children[6];
-  
-        glass.material = new THREE.MeshPhongMaterial({
-          color: 0xFFFFFF,
-          opacity: 0.5,
-          transparent: true,
-        });
         const group = new THREE.Group();
-        group.add(head, eye_r, eye_l, pupil_l, pupil_r, helmet, glass);
+        const model = gltf.scene;
+
+        const glass = model.children[0].children[9];
+        glass.material = new THREE.MeshPhongMaterial({
+          color: 0xC7DBF0,
+          opacity: 0.4,
+          transparent: true,
+          skinning: true
+        });
+
+        group.add(model, glass);
+
+        mixer = new THREE.AnimationMixer(group);
+        const flyAnimation = mixer.clipAction(gltf.animations[0]);
+        flyAnimation.play();
         resolve(group);
       },
       undefined,
@@ -53,7 +55,10 @@ export class Player {
 
   draw() {
     this.vy = getVelocityAfterFriction(this.vy, this.fy);
-
+    if(mixer){
+      const dt = clock.getDelta();
+      mixer.update(dt);
+    }
     let y = this.y + this.vy * 0.9;
     y = y > YMAX ? YMAX : y;
     y = y < YMIN ? YMIN : y;

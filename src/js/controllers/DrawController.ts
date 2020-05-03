@@ -34,7 +34,7 @@ export class DrawController {
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-    this.camera.position.set(-68, 7, 0);
+    this.camera.position.set(-80, 7, 0);
     this.controls.update();
     this.scene = new THREE.Scene();
 
