@@ -5,10 +5,14 @@ import { loadPlayerModel } from '../models/Player';
 import { loadMeteoriteModel, enemiesController } from '../models/Enemy';
 import { Player } from '../models/Player';
 
+const MAX_ASPECT = 2.165;
 export class DrawController {
+  width: number;
+  height: number;
+  aspect = 0.48;
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
-  camera: THREE.Camera;
+  camera: THREE.PerspectiveCamera;
   controls: OrbitControls;
   geometry: THREE.Geometry;
   material: THREE.Material;
@@ -17,6 +21,10 @@ export class DrawController {
   player: Player
 
   constructor(player: Player) {
+    const aspect = window.innerWidth / window.innerHeight;
+    this.aspect = aspect < MAX_ASPECT ? aspect : MAX_ASPECT;
+    this.width = window.innerWidth;
+    this.height = window.innerWidth / this.aspect;
     this.player = player;
   }
 
@@ -24,10 +32,10 @@ export class DrawController {
     const canvas = document.getElementById('webgl') as HTMLCanvasElement;
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     this.renderer.shadowMap.enabled = true
-    
+    console.log(this.aspect, this.width / this.height);
     this.camera = new THREE.PerspectiveCamera(
         35,
-        1, // window.innerWidth / window.innerHeight,
+        this.aspect,
         0.1,
         5000
       );
@@ -43,7 +51,7 @@ export class DrawController {
   
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     this.mesh.position.x = 70;
-    this.mesh.position.z = -35;
+    this.mesh.position.z = -65;
 
     const axes = new THREE.AxesHelper();
     axes.material.depthTest = false;
@@ -66,7 +74,7 @@ export class DrawController {
     }
 
     this.scene.add(this.mesh);
-    this.renderer.setSize(600, 600);
+    this.renderer.setSize(this.width, this.height);
   }
 
   draw = () => {

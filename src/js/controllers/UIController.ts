@@ -51,7 +51,7 @@ export class UIController {
   ctx: CanvasRenderingContext2D;
   pitchChart: PitchChart;
 
-  constructor(startHandler, stopHandler) {
+  constructor(startHandler: Function, stopHandler: Function) {
     const canvas = <HTMLCanvasElement>document.getElementById('canvas');
     this.ctx = canvas.getContext('2d');
     this.pitchChart = new PitchChart(this.ctx);
@@ -66,7 +66,6 @@ export class UIController {
           break;
       }
     }
-    console.log('init uiController');
   }
 
   drawPitchVelocity = (v, minPitch, maxPitch) => {

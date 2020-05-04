@@ -5,8 +5,8 @@ import { getVelocityAfterFriction } from '../utils/math';
 let mixer: THREE.AnimationMixer;
 let clock = new THREE.Clock();
 let playerAnimations;
-const YMAX = 50;
-const YMIN = -18;
+const YMAX = 48;
+const YMIN = -16;
 
 const loader = new GLTFLoader();
 

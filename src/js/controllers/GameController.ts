@@ -39,24 +39,24 @@ export class GameController {
   }
 
   start = async () => {
+    if (this.isStart) return;
     this.audioController = new AudioController();
     try {
       await this.audioController.startListen(this.onPitchChanged);
       await this.drawController.init();
       this.isStart = true;
       this.loop();
-      console.log(this.audioController, this.isStart);
     } catch (error) {
       console.log('start error', error)
     }
   }
 
   stop = () => {
+    if (!this.isStart) return;
     this.audioController.stopListen();
     this.audioController = null;
     this.isStart = false;
     window.cancelAnimationFrame(this.rafId);
-    console.log(this.audioController, this.isStart);
   }
 
   draw = () => {

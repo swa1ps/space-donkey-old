@@ -28,7 +28,7 @@ export async function loadMeteoriteModel(): Promise<THREE.Mesh> {
 function createEnemyFrom(mesh: THREE.Mesh, y: number) {
   const size = interpolate(2, 5, Math.random());
   const newEnemy = mesh.clone();
-  newEnemy.position.z = 20;
+  newEnemy.position.z = 50;
   newEnemy.position.y = y;
   newEnemy.scale.set(size, size, size);
   return newEnemy;
@@ -46,7 +46,7 @@ export function enemiesController(
   });
 
   enemies = enemies.filter(enemy => {
-    if (enemy.position.z > -30) {
+    if (enemy.position.z > -80) {
       return true;
     } else {
       scene.remove(enemy);
