@@ -1,10 +1,10 @@
 import * as THREE from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import playerModel from '../../assets/player.gltf';
+import playerModel from '../../assets/player2.gltf';
+import { getVelocityAfterFriction } from '../utils/math';
 let mixer: THREE.AnimationMixer;
 let clock = new THREE.Clock();
-import { getVelocityAfterFriction } from '../utils/math';
-
+let playerAnimations;
 const YMAX = 50;
 const YMIN = -18;
 
@@ -17,7 +17,7 @@ export async function loadPlayerModel(): Promise<THREE.Group> {
       (gltf) => {
         const group = new THREE.Group();
         const model = gltf.scene;
-
+        console.log(gltf);
         const glass = model.children[0].children[9];
         glass.material = new THREE.MeshPhongMaterial({
           color: 0xFFFFFF,
@@ -29,8 +29,17 @@ export async function loadPlayerModel(): Promise<THREE.Group> {
         group.add(model, glass);
 
         mixer = new THREE.AnimationMixer(group);
-        const flyAnimation = mixer.clipAction(gltf.animations[0]);
-        flyAnimation.play();
+
+        playerAnimations = gltf.animations.reduce((acum, anim) => {
+          anim.duration = 2.48;
+          return {
+            ...acum,
+            [anim.name]: mixer.clipAction(anim)
+          }
+        }, {});
+        playerAnimations['fly'].play();
+        
+
         resolve(group);
       },
       undefined,
@@ -41,11 +50,16 @@ export async function loadPlayerModel(): Promise<THREE.Group> {
   });
 }
 
+function getMovingState(vy = 0): string {
+  if (vy < 0) return 'moveUp';
+  return vy > 0 ? 'moveDown' : 'fly';
+}
 
 export class Player {
   y: number;
   vy: number;
   fy: number;
+  movingState = 'fly';
 
   constructor() {
     this.y = (YMIN + YMAX) / 2;
@@ -58,6 +72,14 @@ export class Player {
     if(mixer){
       const dt = clock.getDelta();
       mixer.update(dt);
+
+      const newMovingState = getMovingState(this.vy);
+      if(newMovingState !== this.movingState) {
+        // TODO: crossFade
+        playerAnimations[this.movingState].stop();
+        playerAnimations[newMovingState].play();
+        this.movingState = newMovingState;
+      }
     }
     let y = this.y + this.vy * 0.9;
     y = y > YMAX ? YMAX : y;
