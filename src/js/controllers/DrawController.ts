@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { initScene } from '../models/Scene';
+import { initScene, updateUniforms } from '../models/Scene';
 import { loadPlayerModel } from '../models/Player';
 import { loadMeteoriteModel, enemiesController } from '../models/Enemy';
 import { Player } from '../models/Player';
@@ -14,9 +14,7 @@ export class DrawController {
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
   controls: OrbitControls;
-  geometry: THREE.Geometry;
-  material: THREE.Material;
-  mesh: THREE.Mesh;
+  playerModel: THREE.Group;
   meteorite: THREE.Mesh;
   player: Player
 
@@ -32,7 +30,7 @@ export class DrawController {
     const canvas = document.getElementById('webgl') as HTMLCanvasElement;
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     this.renderer.shadowMap.enabled = true
-    console.log(this.aspect, this.width / this.height);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
     this.camera = new THREE.PerspectiveCamera(
         35,
         this.aspect,
@@ -41,28 +39,18 @@ export class DrawController {
       );
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-
-    this.camera.position.set(-80, 7, 0);
+    this.camera.position.z = 140;
     this.controls.update();
+
+    // TODO: remove
+    window.cam = this.camera;
+
     this.scene = new THREE.Scene();
-
-    this.geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-    this.material = new THREE.MeshNormalMaterial();
-  
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
-    this.mesh.position.x = 70;
-    this.mesh.position.z = -65;
-
-    const axes = new THREE.AxesHelper();
-    axes.material.depthTest = false;
-    axes.renderOrder = 1;
-    this.mesh.add(axes);
-
     initScene(this.scene);
 
     try {
       const playerModel = await loadPlayerModel();
-      this.mesh.add(playerModel);
+      this.playerModel = playerModel;
     } catch (error) {
       console.log(error);
     }
@@ -72,16 +60,14 @@ export class DrawController {
     } catch (error) {
       console.log(error);
     }
-
-    this.scene.add(this.mesh);
+    this.scene.add(this.playerModel);
     this.renderer.setSize(this.width, this.height);
   }
 
   draw = () => {
-    this.mesh.position.y = -1 * this.player.y;
-  
-    enemiesController(this.scene, this.mesh, this.meteorite);
-  
+    this.playerModel.position.y = -1 * this.player.y;
+    updateUniforms();
+    enemiesController(this.scene, this.playerModel.position.y, this.meteorite);
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
   }

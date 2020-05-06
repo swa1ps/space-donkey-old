@@ -5,8 +5,8 @@ import { getVelocityAfterFriction } from '../utils/math';
 let mixer: THREE.AnimationMixer;
 let clock = new THREE.Clock();
 let playerAnimations;
-const YMAX = 48;
-const YMIN = -16;
+const YMAX = 40;
+const YMIN = -18;
 
 const loader = new GLTFLoader();
 
@@ -39,7 +39,8 @@ export async function loadPlayerModel(): Promise<THREE.Group> {
         }, {});
         playerAnimations['fly'].play();
         
-
+        group.rotation.y = 90;
+        group.position.x = -60;
         resolve(group);
       },
       undefined,
