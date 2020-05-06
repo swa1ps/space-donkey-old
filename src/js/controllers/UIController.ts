@@ -56,15 +56,42 @@ export class UIController {
     this.ctx = canvas.getContext('2d');
     this.pitchChart = new PitchChart(this.ctx);
 
+    const startButton = document.getElementById('start');
+    const stopButton = document.getElementById('stop');
+    const game = document.getElementById('webgl');
+
+    const start = () => {
+      game.classList.remove('game--stopped');
+      startButton.classList.add('button--hidden');
+      stopButton.classList.remove('button--hidden');
+    }
+
+    const stop = () => {
+      game.classList.add('game--stopped');
+      startButton.classList.remove('button--hidden');
+      stopButton.classList.add('button--hidden');
+    }
+
     document.onkeyup = e => {
       switch (e.code) {
         case 'Escape':
           stopHandler();
+          stop();
           break;
         case 'Enter':
           startHandler();
+          start();
           break;
       }
+    }
+
+    startButton.onclick = () => {
+      startHandler();
+      start();
+    }
+    stopButton.onclick = () => {
+      stopHandler();
+      stop();
     }
   }
 

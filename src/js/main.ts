@@ -1,3 +1,4 @@
+import '../css/main.css';
 import { GameController } from './controllers/GameController';
 
 function init() {
