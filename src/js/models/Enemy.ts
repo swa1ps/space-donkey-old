@@ -6,7 +6,7 @@ import { interpolate } from '../utils/math';
 const loader = new GLTFLoader();
 let enemies = [];
 
-export async function loadMeteoriteModel(): Promise<THREE.Mesh> {
+export async function loadMeteoriteModel(loadingCallback): Promise<THREE.Mesh> {
   return new Promise((resolve, reject) => {
     loader.load(
       meteoriteModel,
@@ -17,7 +17,7 @@ export async function loadMeteoriteModel(): Promise<THREE.Mesh> {
         });
         resolve(meteorite);
       },
-      undefined,
+      loadingCallback,
       (error) => {
         reject(error);
       }

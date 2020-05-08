@@ -10,7 +10,7 @@ const YMIN = -18;
 
 const loader = new GLTFLoader();
 
-export async function loadPlayerModel(): Promise<THREE.Group> {
+export async function loadPlayerModel(loadingCallback): Promise<THREE.Group> {
   return new Promise((resolve, reject) => {
     loader.load(
       playerModel,
@@ -43,7 +43,7 @@ export async function loadPlayerModel(): Promise<THREE.Group> {
         group.position.x = -60;
         resolve(group);
       },
-      undefined,
+      loadingCallback,
       (error) => {
         reject(error);
       }

@@ -2,7 +2,8 @@ import { AudioController } from './AudioController';
 import { UIController } from './UIController';
 import { DrawController } from './DrawController';
 import { extrapolate } from '../utils/math';
-import { Player } from '../models/Player';
+import { Player, loadPlayerModel } from '../models/Player';
+import { loadMeteoriteModel } from '../models/Enemy';
 
 
 export class GameController {
@@ -21,6 +22,19 @@ export class GameController {
     this.player = new Player();
     this.drawController = new DrawController(this.player);
     this.uiController = new UIController(this.start, this.stop);
+  }
+
+  loadAssets = async () => {
+    console.log(this.uiController)
+    const playerModel = await loadPlayerModel((xhr) => {
+      this.uiController.updateProgressBar('player', xhr.loaded / xhr.total * 100)
+    });
+
+    const enemyModel = await loadMeteoriteModel((xhr) => {
+      this.uiController.updateProgressBar('meteorite', xhr.loaded / xhr.total * 100)
+    });
+    this.drawController.playerModel = playerModel;
+    this.drawController.meteorite = enemyModel;
   }
 
   onPitchChanged = (pitch: number, clarity: number) => {

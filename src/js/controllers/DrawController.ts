@@ -96,18 +96,6 @@ export class DrawController {
     this.scene = new THREE.Scene();
     initScene(this.scene);
 
-    try {
-      const playerModel = await loadPlayerModel();
-      this.playerModel = playerModel;
-    } catch (error) {
-      console.log(error);
-    }
-
-    try {
-      this.meteorite = await loadMeteoriteModel();
-    } catch (error) {
-      console.log(error);
-    }
     this.scene.add(this.playerModel);
     this.renderer.setSize(this.width, this.height);
   }

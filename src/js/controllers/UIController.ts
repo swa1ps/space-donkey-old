@@ -50,13 +50,18 @@ export class PitchChart {
 export class UIController {
   ctx: CanvasRenderingContext2D;
   pitchChart: PitchChart;
-
+  startButton: HTMLButtonElement;
+  assetsProgress = {
+    player: 0,
+    meteorite: 0,
+  }
   constructor(startHandler: Function, stopHandler: Function) {
     const canvas = <HTMLCanvasElement>document.getElementById('canvas');
     this.ctx = canvas.getContext('2d');
     this.pitchChart = new PitchChart(this.ctx);
 
-    const startButton = document.getElementById('start');
+    const startButton = <HTMLButtonElement>document.getElementById('start');
+    this.startButton = startButton;
     const stopButton = document.getElementById('stop');
     const game = document.getElementById('webgl');
 
@@ -92,6 +97,23 @@ export class UIController {
     stopButton.onclick = () => {
       stopHandler();
       stop();
+    }
+  }
+
+  updateProgressBar(assetName: string, progress: number){
+    this.assetsProgress[assetName] = progress;
+
+    const sum = Object.keys(this.assetsProgress).reduce((sum, key) => {
+      return sum + this.assetsProgress[key];
+    }, 0);
+
+    const percentage = Math.round(100/200*sum);
+
+    this.startButton.innerText = `loading: ${percentage}%`;
+
+    if(percentage === 100){
+      this.startButton.innerText = 'Play';
+      this.startButton.disabled = false;
     }
   }
 
