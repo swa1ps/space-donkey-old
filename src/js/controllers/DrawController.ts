@@ -1,11 +1,53 @@
 import * as THREE from "three";
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { initScene, updateUniforms } from '../models/Scene';
 import { loadPlayerModel } from '../models/Player';
 import { loadMeteoriteModel, enemiesController } from '../models/Enemy';
 import { Player } from '../models/Player';
 
 const MAX_ASPECT = 2.165;
+
+let optimizedResize = (function() {
+  let callbacks = [],
+      running = false;
+  // fired on resize event
+  function resize() {
+      if (!running) {
+          running = true;
+
+          if (window.requestAnimationFrame) {
+              window.requestAnimationFrame(runCallbacks);
+          } else {
+              setTimeout(runCallbacks, 66);
+          }
+      }
+  }
+  // run the actual callbacks
+  function runCallbacks() {
+      callbacks.forEach(function(callback) {
+          callback();
+      });
+      running = false;
+  }
+
+  // adds callback to loop
+  function addCallback(callback) {
+      if (callback) {
+          callbacks.push(callback);
+      }
+  }
+
+  return {
+      // public method to add additional callback
+      add: function(callback) {
+          if (!callbacks.length) {
+              window.addEventListener('resize', resize);
+          }
+          addCallback(callback);
+      }
+  }
+}());
+
+
 export class DrawController {
   width: number;
   height: number;
@@ -13,17 +55,28 @@ export class DrawController {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
-  controls: OrbitControls;
   playerModel: THREE.Group;
   meteorite: THREE.Mesh;
   player: Player
 
   constructor(player: Player) {
-    const aspect = window.innerWidth / window.innerHeight;
-    this.aspect = aspect < MAX_ASPECT ? aspect : MAX_ASPECT;
-    this.width = window.innerWidth;
-    this.height = window.innerWidth / this.aspect;
+    // const aspect = window.innerWidth / window.innerHeight;
+    this.aspect = MAX_ASPECT; //aspect < MAX_ASPECT ? aspect : MAX_ASPECT;
+    this.setSize(window.innerWidth);
     this.player = player;
+
+    optimizedResize.add(() => {
+      this.setSize(window.innerWidth);
+      if (this.renderer) {
+        this.renderer.setSize(this.width, this.height);
+        this.camera.updateProjectionMatrix();
+      }
+    });
+  }
+
+  setSize = (width: number) => {
+    this.width = width;
+    this.height = width / this.aspect;
   }
 
   init = async () => {
@@ -38,12 +91,7 @@ export class DrawController {
         5000
       );
 
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.camera.position.z = 140;
-    this.controls.update();
-
-    // TODO: remove
-    window.cam = this.camera;
 
     this.scene = new THREE.Scene();
     initScene(this.scene);
@@ -68,7 +116,6 @@ export class DrawController {
     this.playerModel.position.y = -1 * this.player.y;
     updateUniforms();
     enemiesController(this.scene, this.playerModel.position.y, this.meteorite);
-    this.controls.update();
     this.renderer.render(this.scene, this.camera);
   }
 }
