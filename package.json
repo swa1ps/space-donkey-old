@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "parcel ./src/index.html"
+    "rm": "rm -rf dist",
+    "dev": "parcel ./src/index.html",
+    "build": "npm run rm && parcel build ./src/index.html --public-url /space-donkey/",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "repository": {
     "type": "git",
@@ -19,6 +23,7 @@
   "homepage": "https://github.com/swa1ps/space-donkey#readme",
   "devDependencies": {
     "@types/node": "^13.11.0",
+    "gh-pages": "^2.2.0",
     "parcel-bundler": "^1.12.4",
     "typescript": "^3.8.3"
   },

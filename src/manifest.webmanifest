@@ -1,0 +1,10 @@
+{
+  "name": "space-donkey",
+  "theme_color": "#170f34",
+  "background_color": "#170f34",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "Scope": "/space-donkey/",
+  "start_url": "/space-donkey/",
+  "splash_pages": null
+}
