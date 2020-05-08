@@ -107,14 +107,9 @@ export class UIController {
       return sum + this.assetsProgress[key];
     }, 0);
 
-    const percentage = Math.round(100/200*sum);
+    // const percentage = Math.round(100/200*sum);
 
-    this.startButton.innerText = `loading: ${percentage}%`;
-
-    if(percentage === 100){
-      this.startButton.innerText = 'Play';
-      this.startButton.disabled = false;
-    }
+    this.startButton.innerText = `loading: ${sum}`;
   }
 
   drawPitchVelocity = (v, minPitch, maxPitch) => {

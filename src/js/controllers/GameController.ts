@@ -27,12 +27,14 @@ export class GameController {
   loadAssets = async () => {
     console.log(this.uiController)
     const playerModel = await loadPlayerModel((xhr) => {
-      this.uiController.updateProgressBar('player', xhr.loaded / xhr.total * 100)
+      this.uiController.updateProgressBar('player', xhr.loaded)
     });
 
     const enemyModel = await loadMeteoriteModel((xhr) => {
-      this.uiController.updateProgressBar('meteorite', xhr.loaded / xhr.total * 100)
+      this.uiController.updateProgressBar('meteorite', xhr.loaded)
     });
+    this.uiController.startButton.innerText = 'Play';
+    this.uiController.startButton.disabled = false;
     this.drawController.playerModel = playerModel;
     this.drawController.meteorite = enemyModel;
   }
