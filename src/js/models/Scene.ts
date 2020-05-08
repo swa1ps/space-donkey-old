@@ -24,29 +24,22 @@ function initBackground(scene: THREE.Scene) {
       uniform float u_time;
       varying vec2 st;
 
-      float circle(in vec2 _st, in float _radius, in vec2 pos){
-        vec2 dist = _st-pos;
-        return 1.-smoothstep(
-          _radius-(_radius*0.01),
-          _radius+(_radius*0.01),
-          dot(dist,dist) * 4.0
-        );
-      }
-
       void main() {
-        vec3 color = vec3(circle(
-          st,
-          0.00001,
-          vec2(1.0 - mod(u_time,1.0), 0.5)
-        ));
+        vec3 color = mix(
+          vec3(smoothstep(0.9,1.4,st.x),0.061,0.370),
+          vec3(
+              pow(st.x,6.0),
+              0.0,
+              pow(st.x,5.0 + 4.0*abs(sin(u_time * 2.0)))
+          ),
+          0.7
+      )
+      - vec3(pow(st.y,2.0 + 6.0 * abs(-0.8 + sin(u_time * 1.5))),0.0,pow(st.y,13.0))
+      - vec3(pow(1.0 - st.y,3.0 + 3.0 * abs(1.2 + sin(u_time * 1.5))),0.0,pow(1.0 - st.y,13.0));
 
-        gl_FragColor = vec4(color,1.0) + 
-        vec4(
-          pow(st.x, 4.4 + sin(u_time * 20.0) * 0.4), 
-          pow(st.x, 6.0),
-          pow(1.05 - st.x, 7.0),
-          1.0
-        );
+      color = mix(color, vec3(0.2, 0.0, smoothstep(0.5,0.0,st.x)), 0.2);
+
+        gl_FragColor = vec4(color,1.0);
       }
     `
   });
