@@ -3,12 +3,12 @@ import { UIController } from './UIController';
 import { DrawController } from './DrawController';
 import { extrapolate } from '../utils/math';
 import { Player, loadPlayerModel } from '../models/Player';
-import { loadMeteoriteModel } from '../models/Enemy';
+import { enemies, loadMeteoriteModel } from '../models/Enemy';
+import * as THREE from "three";
 
 
 export class GameController {
   isStart = false;
-  enemies: [];
   audioController: AudioController;
   uiController: UIController;
   drawController: DrawController;
@@ -75,10 +75,23 @@ export class GameController {
     window.cancelAnimationFrame(this.rafId);
   }
 
+  detectCollisions = () => {
+    const playerCollider = new THREE.Box3().setFromObject(this.drawController.playerModel.children[2]);
+    enemies.forEach(enemy => {
+    const enemyCollider = new THREE.Box3().setFromObject(enemy);
+      const collision = playerCollider.intersectsBox(enemyCollider);
+      if(collision) {
+        console.log(enemy.uuid)
+      }
+    })
+  }
+
   draw = () => {
+
     this.uiController.drawPitchState(this.player.vy, this.minPitch, this.maxPitch);
     this.player.draw();
     this.drawController.draw();
+    this.detectCollisions()
   }
 
   loop = () => {

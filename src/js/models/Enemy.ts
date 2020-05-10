@@ -4,7 +4,7 @@ import meteoriteModel from '../../assets/meteorite.gltf';
 import { interpolate } from '../utils/math';
 
 const loader = new GLTFLoader();
-let enemies = [];
+export let enemies = [];
 
 export async function loadMeteoriteModel(loadingCallback): Promise<THREE.Mesh> {
   return new Promise((resolve, reject) => {
@@ -30,7 +30,6 @@ function createEnemyFrom(mesh: THREE.Mesh, y: number) {
   const newEnemy = mesh.clone();
   newEnemy.position.x = 100;
   newEnemy.position.y = y;
-  console.log(newEnemy.position);
   newEnemy.scale.set(size, size, size);
   return newEnemy;
 }

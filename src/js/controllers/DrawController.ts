@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { initScene, updateUniforms } from '../models/Scene';
-import { loadPlayerModel } from '../models/Player';
-import { loadMeteoriteModel, enemiesController } from '../models/Enemy';
+import { enemiesController } from '../models/Enemy';
 import { Player } from '../models/Player';
 
 const MAX_ASPECT = 2.165;

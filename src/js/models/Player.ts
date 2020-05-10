@@ -28,6 +28,16 @@ export async function loadPlayerModel(loadingCallback): Promise<THREE.Group> {
 
         group.add(model, glass);
 
+        var colliderGeometry = new THREE.BoxGeometry( 20, 20, 15 );
+        const colliderMaterial = new THREE.MeshBasicMaterial({
+          color: 0xFFFFFF,
+          wireframe: true
+        })
+
+        const collider = new THREE.Mesh(colliderGeometry, colliderMaterial);
+        collider.position.y = 10.0;
+        group.add(collider);
+
         mixer = new THREE.AnimationMixer(group);
 
         playerAnimations = gltf.animations.reduce((acum, anim) => {
