@@ -51,11 +51,14 @@ export class UIController {
   ctx: CanvasRenderingContext2D;
   pitchChart: PitchChart;
   startButton: HTMLButtonElement;
+  score: HTMLDivElement;
   assetsProgress = {
     player: 0,
     meteorite: 0,
   }
   constructor(startHandler: Function, stopHandler: Function) {
+    this.score = <HTMLDivElement>document.getElementById('score');
+
     const canvas = <HTMLCanvasElement>document.getElementById('canvas');
     this.ctx = canvas.getContext('2d');
     this.pitchChart = new PitchChart(this.ctx);
@@ -98,6 +101,10 @@ export class UIController {
       stopHandler();
       stop();
     }
+  }
+
+  updateScore(value: number) {
+    this.score.innerText = value.toString();
   }
 
   updateProgressBar(assetName: string, progress: number){

@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { initScene, updateUniforms } from '../models/Scene';
-import { enemiesController } from '../models/Enemy';
 import { Player } from '../models/Player';
 
 const MAX_ASPECT = 2.165;
@@ -102,7 +101,6 @@ export class DrawController {
   draw = () => {
     this.playerModel.position.y = -1 * this.player.y;
     updateUniforms();
-    enemiesController(this.scene, this.playerModel.position.y, this.meteorite);
     this.renderer.render(this.scene, this.camera);
   }
 }

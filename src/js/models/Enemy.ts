@@ -38,6 +38,7 @@ export function enemiesController(
   scene: THREE.Scene,
   y: number,
   meteorite: THREE.Mesh,
+  enemyDeadCallback,
 ): void {
   enemies.forEach(enemy => {
     enemy.rotation.x -= 0.05;
@@ -52,6 +53,7 @@ export function enemiesController(
       return true;
     } else {
       scene.remove(enemy);
+      enemyDeadCallback()
       return false;
     }
   });

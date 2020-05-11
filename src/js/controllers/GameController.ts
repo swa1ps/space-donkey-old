@@ -1,6 +1,7 @@
 import { AudioController } from './AudioController';
 import { UIController } from './UIController';
 import { DrawController } from './DrawController';
+import { enemiesController } from '../models/Enemy';
 import { extrapolate } from '../utils/math';
 import { Player, loadPlayerModel } from '../models/Player';
 import { enemies, loadMeteoriteModel } from '../models/Enemy';
@@ -15,6 +16,7 @@ export class GameController {
   player: Player;
   minPitch = 180;
   maxPitch = 250;
+  score = 0;
   rafId: number = null;
 
   constructor() {
@@ -81,14 +83,27 @@ export class GameController {
     const enemyCollider = new THREE.Box3().setFromObject(enemy);
       const collision = playerCollider.intersectsBox(enemyCollider);
       if(collision) {
-        console.log(enemy.uuid)
+        console.log('hit');
+        this.updateScore(0);
       }
     })
   }
 
-  draw = () => {
+  incScore = (value = 1) => {
+    this.score += value;
+    this.updateScore(this.score);
+  }
 
+  updateScore = (value: number) => {
+    this.score = value;
+    this.uiController.updateScore(value);
+  }
+
+  draw = () => {
+    const { scene, playerModel, meteorite } = this.drawController;
     this.uiController.drawPitchState(this.player.vy, this.minPitch, this.maxPitch);
+
+    enemiesController(scene, playerModel.position.y, meteorite, this.incScore);
     this.player.draw();
     this.drawController.draw();
     this.detectCollisions()
