@@ -79,14 +79,15 @@ export class GameController {
 
   detectCollisions = () => {
     const playerCollider = new THREE.Box3().setFromObject(this.drawController.playerModel.children[2]);
-    enemies.forEach(enemy => {
-    const enemyCollider = new THREE.Box3().setFromObject(enemy);
-      const collision = playerCollider.intersectsBox(enemyCollider);
-      if(collision) {
-        console.log('hit');
-        this.updateScore(0);
-      }
-    })
+    enemies
+      .forEach(enemy => {
+        const enemyCollider = new THREE.Box3().setFromObject(enemy.mesh);
+        const collision = playerCollider.intersectsBox(enemyCollider);
+        if(collision) {
+          enemy.kill();
+          this.updateScore(0);
+        }
+      });
   }
 
   incScore = (value = 1) => {

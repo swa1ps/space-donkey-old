@@ -4,7 +4,6 @@ import meteoriteModel from '../../assets/meteorite.gltf';
 import { interpolate } from '../utils/math';
 
 const loader = new GLTFLoader();
-export let enemies = [];
 
 export async function loadMeteoriteModel(loadingCallback): Promise<THREE.Mesh> {
   return new Promise((resolve, reject) => {
@@ -25,12 +24,47 @@ export async function loadMeteoriteModel(loadingCallback): Promise<THREE.Mesh> {
   });
 }
 
-function createEnemyFrom(mesh: THREE.Mesh, y: number) {
+export class Enemy {
+  scene: THREE.Scene;
+  mesh: THREE.Mesh;
+  size: number;
+  isDead = false;
+  rafId: number = null;
+
+  constructor(mesh: THREE.Mesh, size: number = 1, scene: THREE.Scene) {
+    this.scene = scene;
+    this.mesh = mesh.clone();
+    this.mesh.material = mesh.material.clone();
+    this.mesh.scale.set(size, size, size);
+  }
+
+  agony = () => {
+    this.mesh.material.opacity -= 0.007;
+    if(this.mesh.material.opacity <= 0) {
+      window.cancelAnimationFrame(this.rafId);
+    }
+    window.requestAnimationFrame(this.agony)
+  }
+
+  kill = () => {
+    this.isDead = true;
+    this.mesh.material.transparent = true;
+    this.mesh.material.color.setHex(0xFF0000);
+    this.rafId = window.requestAnimationFrame(this.agony);
+  }
+
+  remove = () => {
+    this.scene.remove(this.mesh);
+  }
+}
+
+export let enemies:Enemy[] = [];
+
+function createEnemyFrom(mesh: THREE.Mesh, y: number, scene: THREE.Scene): Enemy {
   const size = interpolate(2, 5, Math.random());
-  const newEnemy = mesh.clone();
-  newEnemy.position.x = 100;
-  newEnemy.position.y = y;
-  newEnemy.scale.set(size, size, size);
+  const newEnemy = new Enemy(mesh, size, scene);
+  newEnemy.mesh.position.x = 100;
+  newEnemy.mesh.position.y = y;
   return newEnemy;
 }
 
@@ -41,26 +75,27 @@ export function enemiesController(
   enemyDeadCallback,
 ): void {
   enemies.forEach(enemy => {
-    enemy.rotation.x -= 0.05;
-    enemy.rotation.z += 0.01;
-    enemy.rotation.y += 0.02;
+    enemy.mesh.rotation.x -= 0.05;
+    enemy.mesh.rotation.z += 0.01;
+    enemy.mesh.rotation.y += 0.02;
 
-    enemy.position.x -= 0.6;
+    enemy.mesh.position.x -= 0.6;
   });
 
   enemies = enemies.filter(enemy => {
-    if (enemy.position.x > -80) {
+    if (enemy.mesh.position.x > -80) {
       return true;
     } else {
-      scene.remove(enemy);
+      scene.remove(enemy.mesh);
       enemyDeadCallback()
       return false;
     }
   });
 
   if (meteorite && !enemies.length) {
-    const enemy = createEnemyFrom(meteorite, y)
+    const enemy = createEnemyFrom(meteorite, y, scene)
     enemies.push(enemy);
-    scene.add(enemy);
+    scene.add(enemy.mesh);
   }
 }
+

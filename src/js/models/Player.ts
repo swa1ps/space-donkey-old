@@ -28,13 +28,14 @@ export async function loadPlayerModel(loadingCallback): Promise<THREE.Group> {
 
         group.add(model, glass);
 
-        var colliderGeometry = new THREE.BoxGeometry( 20, 20, 15 );
+        var colliderGeometry = new THREE.BoxGeometry( 15, 17, 6 );
         const colliderMaterial = new THREE.MeshBasicMaterial({
           color: 0xFFFFFF,
           wireframe: true
         })
 
         const collider = new THREE.Mesh(colliderGeometry, colliderMaterial);
+        collider.visible = false;
         collider.position.y = 10.0;
         group.add(collider);
 
@@ -47,6 +48,8 @@ export async function loadPlayerModel(loadingCallback): Promise<THREE.Group> {
             [anim.name]: mixer.clipAction(anim)
           }
         }, {});
+        playerAnimations['moveUp'].timeScale = 2;
+        playerAnimations['moveDown'].timeScale = 2;
         playerAnimations['fly'].play();
         
         group.rotation.y = 90;
