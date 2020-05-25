@@ -20,10 +20,13 @@ export class GameController {
   rafId: number = null;
 
   constructor() {
-    console.log('init game controller');
-    this.player = new Player();
-    this.drawController = new DrawController(this.player);
     this.uiController = new UIController(this.start, this.stop);
+  }
+  
+  initAssets = (playerModel: THREE.Group, enemyModel: THREE.Mesh) => {
+    this.player = new Player(playerModel);
+    this.drawController = new DrawController(this.player);
+    this.drawController.meteorite = enemyModel;
   }
 
   loadAssets = async () => {
@@ -37,8 +40,7 @@ export class GameController {
     });
     this.uiController.startButton.innerText = 'Play';
     this.uiController.startButton.disabled = false;
-    this.drawController.playerModel = playerModel;
-    this.drawController.meteorite = enemyModel;
+    this.initAssets(playerModel, enemyModel);
   }
 
   onPitchChanged = (pitch: number, clarity: number) => {

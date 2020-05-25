@@ -53,7 +53,6 @@ export class DrawController {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
-  playerModel: THREE.Group;
   meteorite: THREE.Mesh;
   player: Player
 
@@ -94,12 +93,12 @@ export class DrawController {
     this.scene = new THREE.Scene();
     initScene(this.scene);
 
-    this.scene.add(this.playerModel);
+    this.scene.add(this.player.model);
     this.renderer.setSize(this.width, this.height);
   }
 
   draw = () => {
-    this.playerModel.position.y = -1 * this.player.y;
+    this.player.model.position.y = -1 * this.player.y;
     updateUniforms();
     this.renderer.render(this.scene, this.camera);
   }

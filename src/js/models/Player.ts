@@ -74,11 +74,13 @@ export class Player {
   vy: number;
   fy: number;
   movingState = 'fly';
+  model: THREE.Group;
 
-  constructor() {
+  constructor(model: THREE.Group) {
     this.y = (YMIN + YMAX) / 2;
     this.vy = 0;
     this.fy = 1.07;
+    this.model = model;
   }
 
   draw() {
