@@ -17,7 +17,6 @@ export async function loadPlayerModel(loadingCallback): Promise<THREE.Group> {
       (gltf) => {
         const group = new THREE.Group();
         const model = gltf.scene;
-        console.log(gltf);
         const glass = model.children[0].children[9];
         glass.material = new THREE.MeshPhongMaterial({
           color: 0xFFFFFF,
@@ -75,12 +74,25 @@ export class Player {
   fy: number;
   movingState = 'fly';
   model: THREE.Group;
+  isHidden = false;
 
   constructor(model: THREE.Group) {
     this.y = (YMIN + YMAX) / 2;
     this.vy = 0;
     this.fy = 1.07;
     this.model = model;
+  }
+
+  hitAnimation = () => {
+    const inerval = setInterval(() => {
+        this.isHidden = !this.isHidden;
+        this.model.visible = this.isHidden;
+      }, 100);
+    setTimeout(() => {
+      clearInterval(inerval);
+      this.model.visible = true;
+      this.isHidden = true;
+    }, 600)
   }
 
   draw() {

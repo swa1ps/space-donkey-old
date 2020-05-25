@@ -29,6 +29,7 @@ export class Enemy {
   mesh: THREE.Mesh;
   size: number;
   isDead = false;
+  isHidden = false;
   rafId: number = null;
 
   constructor(mesh: THREE.Mesh, size: number = 1, scene: THREE.Scene) {
@@ -39,9 +40,10 @@ export class Enemy {
   }
 
   agony = () => {
-    this.mesh.material.opacity -= 0.007;
+    this.mesh.material.opacity -= 0.1;
     if(this.mesh.material.opacity <= 0) {
       window.cancelAnimationFrame(this.rafId);
+      this.isHidden = true;
     }
     window.requestAnimationFrame(this.agony)
   }
@@ -79,15 +81,17 @@ export function enemiesController(
     enemy.mesh.rotation.z += 0.01;
     enemy.mesh.rotation.y += 0.02;
 
-    enemy.mesh.position.x -= 0.6;
+    enemy.mesh.position.x -= 1.6;
   });
 
   enemies = enemies.filter(enemy => {
-    if (enemy.mesh.position.x > -80) {
+    if (!enemy.isHidden && enemy.mesh.position.x > -100) {
       return true;
     } else {
       scene.remove(enemy.mesh);
-      enemyDeadCallback()
+      if(enemy.mesh.position.x < -100){
+        enemyDeadCallback()
+      }
       return false;
     }
   });

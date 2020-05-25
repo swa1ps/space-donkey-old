@@ -68,7 +68,6 @@ function initBackground(scene: THREE.Scene) {
   bg = new THREE.Mesh(geometry, material);
   bg.position.x = 0;
   bg.position.z = -65;
-  console.log('bg', bg.position)
   scene.add(bg);
 }
 

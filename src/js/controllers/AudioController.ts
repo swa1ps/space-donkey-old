@@ -13,7 +13,6 @@ export class AudioController {
   constructor() {
     this.audioContext = new AudioContext();
     this.analyserNode = this.audioContext.createAnalyser();
-    console.log('init audio controller')
   }
 
   private createListenInterval = (callback: (pitch: number, clarity: number) => void): NodeJS.Timeout => {

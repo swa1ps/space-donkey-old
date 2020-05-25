@@ -30,7 +30,6 @@ export class GameController {
   }
 
   loadAssets = async () => {
-    console.log(this.uiController)
     const playerModel = await loadPlayerModel((xhr) => {
       this.uiController.updateProgressBar('player', xhr.loaded)
     });
@@ -80,12 +79,14 @@ export class GameController {
   }
 
   detectCollisions = () => {
-    const playerCollider = new THREE.Box3().setFromObject(this.drawController.playerModel.children[2]);
+    const playerCollider = new THREE.Box3().setFromObject(this.player.model.children[2]);
     enemies
+      .filter(enemy => !enemy.isDead)
       .forEach(enemy => {
         const enemyCollider = new THREE.Box3().setFromObject(enemy.mesh);
         const collision = playerCollider.intersectsBox(enemyCollider);
         if(collision) {
+          this.player.hitAnimation()
           enemy.kill();
           this.updateScore(0);
         }
@@ -103,10 +104,14 @@ export class GameController {
   }
 
   draw = () => {
-    const { scene, playerModel, meteorite } = this.drawController;
+    const { 
+      scene,
+      player: { model },
+      meteorite 
+    } = this.drawController;
     this.uiController.drawPitchState(this.player.vy, this.minPitch, this.maxPitch);
 
-    enemiesController(scene, playerModel.position.y, meteorite, this.incScore);
+    enemiesController(scene, model.position.y, meteorite, this.incScore);
     this.player.draw();
     this.drawController.draw();
     this.detectCollisions()
