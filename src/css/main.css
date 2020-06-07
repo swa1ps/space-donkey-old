@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "Victor's Pixel Font";
+  src: url("../fonts/816c3501442cf81941cc63aa56c73dbb.woff2") format("woff2");
+}
+
 html, body {
   margin: 0;
   width: 100%;
@@ -9,10 +14,10 @@ body {
   display: flex;
   align-items: center;
   vertical-align: middle;
-  font-family: 'Segoe UI', Arial, Tahoma, Geneva, Verdana, sans-serif;
   color: #000;
   font-size: 16px;
   background: #000;
+  font-family: "Victor's Pixel Font", Arial, sans-serif;
 }
 
 canvas {
@@ -58,6 +63,7 @@ canvas {
   transition: all .2s ease;
   position: absolute;
   border-radius: 50%;
+  font-family: "Victor's Pixel Font", Arial, sans-serif;
 }
 
 .button:hover {
