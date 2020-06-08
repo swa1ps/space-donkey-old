@@ -1,4 +1,5 @@
 import { extrapolate } from '../utils/math';
+import healthPointImage from '../../img/heart.svg';
 
 export type Pitch = {
   x: number;
@@ -52,12 +53,14 @@ export class UIController {
   pitchChart: PitchChart;
   startButton: HTMLButtonElement;
   score: HTMLDivElement;
+  health: HTMLDivElement;
   assetsProgress = {
     player: 0,
     meteorite: 0,
   }
   constructor(startHandler: Function, stopHandler: Function) {
     this.score = <HTMLDivElement>document.getElementById('score');
+    this.health = <HTMLDivElement>document.getElementById('health');
 
     const canvas = <HTMLCanvasElement>document.getElementById('canvas');
     this.ctx = canvas.getContext('2d');
@@ -69,12 +72,14 @@ export class UIController {
     const game = document.getElementById('webgl');
 
     const start = () => {
+      startHandler();
       game.classList.remove('game--stopped');
       startButton.classList.add('button--hidden');
       stopButton.classList.remove('button--hidden');
     }
 
     const stop = () => {
+      stopHandler();
       game.classList.add('game--stopped');
       startButton.classList.remove('button--hidden');
       stopButton.classList.add('button--hidden');
@@ -83,28 +88,34 @@ export class UIController {
     document.onkeyup = e => {
       switch (e.code) {
         case 'Escape':
-          stopHandler();
           stop();
           break;
         case 'Enter':
-          startHandler();
           start();
           break;
       }
     }
 
     startButton.onclick = () => {
-      startHandler();
       start();
     }
     stopButton.onclick = () => {
-      stopHandler();
       stop();
     }
   }
 
   updateScore(value: number) {
     this.score.innerText = value.toString();
+  }
+
+  updateHealth(value: number) {
+    this.health.innerHTML = '';
+    for (let i = 0; i < value; i++) {
+      const point = document.createElement("img");
+      point.src = healthPointImage;
+      point.className = "health__point";
+      this.health.appendChild(point);
+    }
   }
 
   updateProgressBar(assetName: string, progress: number){

@@ -17,10 +17,12 @@ export class GameController {
   minPitch = 180;
   maxPitch = 250;
   score = 0;
+  healthPoints = 4;
   rafId: number = null;
 
   constructor() {
     this.uiController = new UIController(this.start, this.stop);
+    this.uiController.updateHealth(this.healthPoints);
   }
   
   initAssets = (playerModel: THREE.Group, enemyModel: THREE.Mesh) => {
@@ -88,7 +90,7 @@ export class GameController {
         if(collision) {
           this.player.hitAnimation()
           enemy.kill();
-          this.updateScore(0);
+          this.updateHealth(this.healthPoints - 1);
         }
       });
   }
@@ -101,6 +103,11 @@ export class GameController {
   updateScore = (value: number) => {
     this.score = value;
     this.uiController.updateScore(value);
+  }
+
+  updateHealth = (value: number) => {
+    this.healthPoints = value;
+    this.uiController.updateHealth(value);
   }
 
   draw = () => {

@@ -16,7 +16,7 @@ body {
   vertical-align: middle;
   color: #000;
   font-size: 16px;
-  background: #000;
+  background: #111;
   font-family: "Victor's Pixel Font", Arial, sans-serif;
 }
 
@@ -35,14 +35,6 @@ canvas {
 #wrapper {
   position: relative;
   width: 100%;
-}
-
-.score {
-  position: absolute;
-  right: 20px;
-  top: 20px;
-  color: #fff;
-  font-size: 20px;
 }
 
 .game--stopped{
@@ -105,4 +97,25 @@ canvas {
   width: 4px;
   height: 20px;
   background: #000;
+}
+
+.game-ui{
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  color: #fff;
+  text-align: right;
+}
+
+.game-ui__item {
+  margin-bottom: 2vw;
+}
+
+.score {
+  font-size: 4vw;
+  padding-right: 6px;
+}
+
+.health__point {
+  width: 4vw;
 }

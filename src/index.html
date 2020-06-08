@@ -9,7 +9,17 @@
 <body>
   <div id="wrapper">
     <canvas id="webgl" class="game"></canvas>
-    <div id="score" class="score">0</div>
+    <div class="game-ui">
+      <div class="game-ui__item score">
+        score: <span id="score" class="score__value">0</span>
+      </div>
+      <div id="health" class="game-ui__item health">
+        <!-- <img src="./img/heart.svg" alt="" class="health__point">
+        <img src="./img/heart.svg" alt="" class="health__point">
+        <img src="./img/heart.svg" alt="" class="health__point">
+        <img src="./img/heart.svg" alt="" class="health__point"> -->
+      </div>
+    </div>
     <canvas id="canvas" width="200" height="100"></canvas>
   </div>
   <button id="start" class="button button--start" type="button" disabled>loading: 0%</button>
