@@ -26,10 +26,6 @@ canvas {
 
 #canvas {
   background: rgba(255, 255, 255, 0.1);
-  position: absolute;
-  right: 0;
-  top: 0;
-  display: none;
 }
 
 #wrapper {
@@ -105,6 +101,11 @@ canvas {
   top: 20px;
   color: #fff;
   text-align: right;
+  display: none;
+}
+
+.game-ui--visible{
+  display: block;
 }
 
 .game-ui__item {

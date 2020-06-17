@@ -14,8 +14,8 @@ export class GameController {
   uiController: UIController;
   drawController: DrawController;
   player: Player;
-  minPitch = 180;
-  maxPitch = 250;
+  minPitch = 200;
+  maxPitch = 550;
   score = 0;
   healthPoints = 4;
   rafId: number = null;
@@ -23,6 +23,7 @@ export class GameController {
   constructor() {
     this.uiController = new UIController(this.start, this.stop);
     this.uiController.updateHealth(this.healthPoints);
+    window.game = this;
   }
   
   initAssets = (playerModel: THREE.Group, enemyModel: THREE.Mesh) => {
@@ -46,10 +47,14 @@ export class GameController {
 
   onPitchChanged = (pitch: number, clarity: number) => {
     if(pitch > 50 && pitch < 1500 && clarity > 0.95) {
-      if (pitch < this.minPitch) this.minPitch = pitch;
-      if (pitch > this.maxPitch) this.maxPitch = pitch;
-      const pitchValue = Math.abs(extrapolate(this.minPitch, this.maxPitch, pitch));
-      this.player.vy = (0.5 - pitchValue) * 1.6;
+      const pitchValue = Math.abs(extrapolate(100, 350, pitch));
+      
+      this.player.vy = (0.5 - pitchValue) * 3;
+        console.table({
+          pitch,
+          pitchValue,
+          vy: (0.5 - pitchValue) * 3
+        });
       this.uiController.pitchChart.addPitch({
         x: 200,
         y: 100 - pitchValue * 100,

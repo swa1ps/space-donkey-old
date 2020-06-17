@@ -54,11 +54,13 @@ export class UIController {
   startButton: HTMLButtonElement;
   score: HTMLDivElement;
   health: HTMLDivElement;
+  ui: HTMLDivElement;
   assetsProgress = {
     player: 0,
     meteorite: 0,
   }
   constructor(startHandler: Function, stopHandler: Function) {
+    this.ui = <HTMLDivElement>document.getElementById('ui');
     this.score = <HTMLDivElement>document.getElementById('score');
     this.health = <HTMLDivElement>document.getElementById('health');
 
@@ -72,6 +74,7 @@ export class UIController {
     const game = document.getElementById('webgl');
 
     const start = () => {
+      this.ui.classList.add('game-ui--visible');
       startHandler();
       game.classList.remove('game--stopped');
       startButton.classList.add('button--hidden');
